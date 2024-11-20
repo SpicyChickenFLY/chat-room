@@ -28,7 +28,7 @@ const login = () => {
   }
 
   request
-    .post('/api/user/login', {
+    .post('/api/auth/login', {
       username: loginForm.value.username,
       password: loginForm.value.password
     })
@@ -64,32 +64,17 @@ const register = () => {
     ElMessage({ message: '请输入密码', type: 'error', grouping: true })
     return
   }
-  if (registerForm.value.phone === '') {
-    ElMessage({ message: '请输入手机号', type: 'error', grouping: true })
-    return
-  }
-  if (registerForm.value.code === '') {
-    ElMessage({ message: '请输入验证码', type: 'error', grouping: true })
-    return
-  }
-  if (registerForm.value.code !== '123456') {
-    ElMessage({ message: '验证码错误', type: 'error', grouping: true })
-    return
-  }
 
   request
-    .post('/api/user/register', {
+    .post('/api/auth/register', {
       username: registerForm.value.username,
       password: registerForm.value.password,
-      phone: registerForm.value.phone
     })
     .then((res: any) => {
       if (res.code === 1) {
         ElMessage.success({ message: res.message })
         registerForm.value.username = ''
         registerForm.value.password = ''
-        registerForm.value.phone = ''
-        registerForm.value.code = ''
         registerPanelVisable.value = false
       } else {
         ElMessage.error({
@@ -98,33 +83,6 @@ const register = () => {
         })
       }
     })
-}
-// 发送验证码
-const buttonDisabled = ref(false)
-const buttonText = ref('获取验证码')
-const textSecond = ref(60)
-const sendCode = () => {
-  if (registerForm.value.phone === '') {
-    ElMessage({ message: '请输入手机号', type: 'error', grouping: true })
-    return
-  }
-
-  ElMessage({
-    message: '验证码已发送',
-    type: 'success',
-    grouping: true
-  })
-  buttonDisabled.value = true
-  buttonText.value = `(${textSecond.value}s)`
-  const changeButton = setInterval(() => {
-    textSecond.value--
-    buttonText.value = `(${textSecond.value}s)`
-    if (textSecond.value <= 0) {
-      clearInterval(changeButton)
-      buttonText.value = '获取验证码'
-      textSecond.value = 60
-    }
-  }, 1000)
 }
 
 // 判断用户是否已登录过
@@ -200,35 +158,7 @@ if (userStore.token) {
               placeholder="请输入密码"
               autocomplete="off"
             />
-            <input
-              type="text"
-              name="register-phone"
-              class="register-phone"
-              id="register-phone"
-              v-model="registerForm.phone"
-              placeholder="请输入手机号"
-              autocomplete="off"
-            />
-            <div class="register-code-pane">
-              <input
-                type="text"
-                name="register-code"
-                class="register-code"
-                id="register-code"
-                v-model="registerForm.code"
-                placeholder="请输入验证码"
-                autocomplete="off"
-              />
-              <input
-                type="button"
-                :value="buttonText"
-                class="register-code-button"
-                id="register-code-button"
-                @click="sendCode"
-                :disabled="buttonDisabled"
-              />
-            </div>
-            <input value="注册" class="register-button" id="register-button" @click="register" />
+            <el-button class="register-button" id="register-button" @click="register"> 注册 </el-button>
           </form>
         </div>
       </div>

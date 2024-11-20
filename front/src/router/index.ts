@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'index',
-      redirect: '/chat'
+      redirect: '/login'
       // component: IndexView
     },
     {

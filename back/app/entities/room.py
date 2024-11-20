@@ -5,14 +5,14 @@ from sqlalchemy.orm import declarative_base
 class Room(declarative_base()):
     __tablename__ = "room_list"
 
-    room_id = Column(Integer, primary_key=True)
-    room_name = Column(String)
-    room_img = Column(String)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    avatar = Column(String)
     create_time = Column(DateTime)
 
     def to_dict(self):
         return {
-            "roomId": self.room_id,
-            "roomName": self.room_name,
-            "roomImg": self.room_img,
+            "id": self.id,
+            "name": self.name,
+            "avatar": self.avatar,
         }

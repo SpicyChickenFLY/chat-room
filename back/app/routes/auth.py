@@ -1,12 +1,11 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token
-from sqlalchemy import Column
 from werkzeug import security
 
-from back.app import services
-from back.app import entities
-from back.app.entities.result import Result
+from app import services
+from app import entities
+from app.entities.result import Result
 
 users_db = {}
 
@@ -21,7 +20,7 @@ class RegisterApi(Resource):
         password = data["password"]
         if not username or not password:
             return Result(msg="用户名密码不能为空"), 400
-        user = services.find_user()
+        user = services.find_user_by_nickname(username)
         if user is not None:
             return Result(msg="用户名已存在"), 400
 
@@ -40,10 +39,10 @@ class LoginApi(Resource):
         password = data.get("password")
         if not username or not password:
             return {"msg": "用户名和密码不能为空"}, 400
-        user = services.find_user()
+        user = services.find_user_by_nickname(username)
         if user is None:
             return {"msg": "用户名不存在"}, 401
-        if not security.check_password_hash(user.user_token, password):
+        if not security.check_password_hash(user.token, password):
             return {"msg": "用户名或密码错误"}, 401
 
         access_token = create_access_token(identity=username)

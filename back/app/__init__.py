@@ -1,25 +1,26 @@
 from flask import Flask, render_template
+from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
-from flask_restful import Api, Resource
+from flask_restful import Api
+from flask_cors import CORS
 
-from routes import auth
+from .routes import api_add_resouces
 
-socketio = SocketIO()
 app = Flask(__name__, static_folder="./static/assets/", template_folder="./static/")
-app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
+CORS(app)
+api_add_resouces(Api(app))
+jwt = JWTManager(app)
+socketio = SocketIO(app)
 
-api = Api(app)
-api.add_resource(auth.RegisterApi, 'auth/register')
-api.add_resource(auth.LoginApi, 'auth/register')
 
 @app.route("/", methods=["GET"])
 def index():
     """打开前端页面"""
     return render_template("index.html")
 
+
 def run(debug=False):
     """Create an application."""
     app.debug = debug
-    socketio.init_app(app)
-    return app
-
+    app.config["SECRET_KEY"] = "gjr39dkjn344_!67#"
+    socketio.run(app, host="0.0.0.0", port=5000)

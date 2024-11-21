@@ -8,8 +8,8 @@ export const useUserStore = defineStore(
     const token = ref('')
 
     // 设置用户信息
-    const setUserInfo = (data: any) => {
-      token.value = data.userToken
+    const setToken = (data: any) => {
+      token.value = data.accessToken
     }
 
     // 退出登录
@@ -20,7 +20,7 @@ export const useUserStore = defineStore(
 
     return {
       token,
-      setUserInfo,
+      setToken,
       logout
     }
   },

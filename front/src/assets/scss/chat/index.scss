@@ -1,4 +1,4 @@
-@import '../variable.scss';
+@use '../variable.scss' as *;
 
 #chat {
   margin: 0;
@@ -25,34 +25,12 @@
     height: 100%;
     background-color: pink;
 
-    // 用户信息盒子
-    .user-box {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      width: 100%;
-      height: 4.375rem;
-      background-color: white;
-      border-bottom: 0.0625rem solid #e0e0e0;
-      .user-img {
-        width: 3.125rem;
-        height: 3.125rem;
-        background-color: transparent;
-        margin-left: 1rem;
-        cursor: pointer;
-      }
-
-      .user-name {
-        font-size: 1.5rem;
-        margin-left: 1.75rem;
-      }
-    }
 
     // 用户操作面板盒子
     .user-options-box {
       display: flex;
       width: 100%;
-      height: calc(100% - 4.375rem);
+      height: 100%;
 
       .user-option-box {
         display: flex;
@@ -61,9 +39,22 @@
         position: relative;
         width: 4.375rem;
         height: 100%;
-        padding-top: 1.5rem;
-        background-color: white;
+        background-color: #f5f6f7;
         box-sizing: border-box;
+
+        // 用户信息盒子
+        .user-box {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          width: 100%;
+          height: 4.375rem;
+
+          .user-name {
+            font-size: 1.5rem;
+            margin-left: 1.75rem;
+          }
+        }
 
         .option-icon {
           margin-bottom: 1.5rem;
@@ -95,6 +86,22 @@
         height: 100%;
         background-color: #fafafa;
         border-right: 0.0625rem solid #e0e0e0;
+
+        // 用户信息盒子
+        .search-box {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          width: 100%;
+          height: 4.375rem;
+          background-color: #fafafa;
+          border-bottom: 0.0625rem solid #e0e0e0;
+
+          .search-input {
+            font-size: 1.5rem;
+            margin-left: 1.75rem;
+          }
+        }
 
         .message-box {
           display: flex;
@@ -164,6 +171,44 @@
 
       .title {
         font-size: 1.25rem;
+        flex-grow: 1;
+      }
+
+      .chat-options {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        width: 9rem;
+        height: 4.375rem;
+        background-color: white;
+        border-bottom: 0.0625rem solid #e0e0e0;
+        box-sizing: border-box;
+
+        span {
+          width: 1.5rem;
+          height: 1.5rem;
+          border-radius: 50%;
+          margin-right: 1.25rem;
+          transition: all 0.3s;
+          cursor: pointer;
+
+          &:hover {
+            opacity: 0.5;
+          }
+        }
+
+        .hidden {
+          background-color: #28ca40;
+        }
+
+        .max {
+          background-color: #ffbd2e;
+        }
+
+        .close {
+          background-color: #ff6057;
+        }
       }
     }
 
@@ -296,6 +341,7 @@
         z-index: 200;
       }
     }
+
   }
 
   // 账号列表
@@ -303,43 +349,6 @@
     width: 15.625rem;
     height: 100%;
     background-color: white;
-
-    .chat-options {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-end;
-      width: 100%;
-      height: 4.375rem;
-      background-color: white;
-      border-bottom: 0.0625rem solid #e0e0e0;
-      box-sizing: border-box;
-
-      span {
-        width: 1.5rem;
-        height: 1.5rem;
-        border-radius: 50%;
-        margin-right: 1.25rem;
-        transition: all 0.3s;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.5;
-        }
-      }
-
-      .hidden {
-        background-color: #28ca40;
-      }
-
-      .max {
-        background-color: #ffbd2e;
-      }
-
-      .close {
-        background-color: #ff6057;
-      }
-    }
 
     .account-title {
       display: flex;

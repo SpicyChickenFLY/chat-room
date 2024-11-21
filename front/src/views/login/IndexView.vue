@@ -34,15 +34,15 @@ const login = () => {
     })
     .then((res: any) => {
       if (res.code === 1) {
-        ElMessage.success({ message: res.message })
-        userStore.setUserInfo(res.data)
+        ElMessage.success({ message: res.msg })
+        userStore.setToken(res.data)
 
         let socket = getSocket()
         socket.emit('login', { token: userStore.token })
 
         router.replace('/chat')
       } else {
-        ElMessage.error({ message: res.message, grouping: true })
+        ElMessage.error({ message: res.msg, grouping: true })
       }
     })
 }
@@ -95,16 +95,16 @@ if (userStore.token) {
     <div class="form-box">
       <div class="background">
         <div class="login-text">
-          <h1 class="title">欢迎注册 极聊X</h1>
-          <p class="sub-title">冲破二次元的墙壁</p>
-          <img src="/images/register.jpg" alt="register.jpg" />
+          <h1 class="title">登陆</h1>
+          <p class="sub-title">子标题</p>
+          <!-- <img src="/images/register.jpg" alt="register.jpg" /> -->
           <p class="text">已有账号？</p>
           <button class="change-login" @click="registerPanelVisable = false">登录</button>
         </div>
         <div class="register-text">
-          <h1 class="title">欢迎登录 极聊X</h1>
-          <p class="sub-title">冲破二次元的墙壁</p>
-          <img src="/images/login.jpg" alt="register.jpg" />
+          <h1 class="title">注册</h1>
+          <p class="sub-title">子标题</p>
+          <!-- <img src="/images/login.jpg" alt="register.jpg" /> -->
           <p class="text">没有账号？</p>
           <el-button class="change-register" @click="registerPanelVisable = true">注册</el-button>
         </div>
@@ -166,5 +166,5 @@ if (userStore.token) {
   </div>
 </template>
 <style scoped lang="scss">
-@import '@/assets/scss/login/';
+@use '@/assets/scss/login/' as *;
 </style>

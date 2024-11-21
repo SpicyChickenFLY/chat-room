@@ -17,9 +17,11 @@ const userStore = useUserStore()
 // 加载动画
 const loading = ref(true)
 
+const accountVisible = ref(false)
+
 // 用户信息
 const userInfo: any = ref({
-  userName: 'ACGN',
+  userName: 'Ni',
   userImg: '../ACGN.png'
 })
 
@@ -84,6 +86,7 @@ const initChat = () => {
     ElMessage.error('请先登录！')
     router.replace('/')
   }
+  loading.value = false
 
   socket = getSocket()
 
@@ -216,45 +219,50 @@ const openUserInfo = () => {
     <div class="chat-box">
       <!-- 用户信息列表 -->
       <div class="user-info-box">
-        <div class="user-box">
-          <el-avatar
-            class="user-img"
-            :src="`/images/userimg/${userInfo?.userImg}`"
-            @click="openUserInfo"
-          />
-          <p class="user-name">{{ userInfo?.userName }}</p>
-        </div>
         <div class="user-options-box">
           <div class="user-option-box">
+            <div class="user-box">
+              <p class="user-name">{{ userInfo?.userName }}</p>
+            </div>
+            <el-avatar
+              class="user-img"
+              :src="`/images/userimg/${userInfo?.userImg}`"
+              @click="openUserInfo"
+            />
             <el-icon class="option-icon active"><ChatLineSquare /></el-icon>
             <el-icon class="option-icon"><User /></el-icon>
             <el-icon class="option-icon setting"><Operation /></el-icon>
           </div>
           <div class="user-message-box">
-            <el-scrollbar height="100%">
-              <div class="message-box active" v-for="item in 1" :key="item">
-                <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
-                <div class="content">
-                  <div class="title">
-                    <p class="name">ACGN 小屋</p>
-                    <p class="time">
-                      {{ formatMessageDate(messageList[messageList.length - 1]?.time) }}
-                    </p>
-                  </div>
-                  <div class="message">
-                    <p class="text">
-                      {{
-                        (
-                          messageList[messageList.length - 1]?.name +
-                          ':' +
-                          messageList[messageList.length - 1]?.message
-                        ).slice(0, 11)
-                      }}
-                    </p>
+            <div class="search-box">
+              <el-input />
+            </div>
+            <div class="messages-box">
+              <el-scrollbar>
+                <div class="message-box active" v-for="item in 1" :key="item">
+                  <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
+                  <div class="content">
+                    <div class="title">
+                      <p class="name">ACGN 小屋</p>
+                      <p class="time">
+                        {{ formatMessageDate(messageList[messageList.length - 1]?.time) }}
+                      </p>
+                    </div>
+                    <div class="message">
+                      <p class="text">
+                        {{
+                          (
+                            messageList[messageList.length - 1]?.name +
+                            ':' +
+                            messageList[messageList.length - 1]?.message
+                          ).slice(0, 11)
+                        }}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </el-scrollbar>
+              </el-scrollbar>
+            </div>
           </div>
         </div>
       </div>
@@ -263,6 +271,11 @@ const openUserInfo = () => {
       <div class="message-list-box">
         <div class="message-title">
           <p class="title">ACGN 小屋</p>
+          <div class="chat-options">
+            <span class="hidden"></span>
+            <span class="max"></span>
+            <span class="close" @click="logout"></span>
+          </div>
         </div>
         <div class="message-list">
           <div class="loading-text" v-if="isLoading">
@@ -289,6 +302,8 @@ const openUserInfo = () => {
               </div>
             </div>
           </el-scrollbar>
+          <div class="account-visible-btn" v-if="accountVisible">&gt;</div>
+          <div class="account-visible-btn" v-else>&lt;</div>
         </div>
         <div class="message-input-box">
           <div class="message-option">
@@ -320,16 +335,8 @@ const openUserInfo = () => {
       </div>
 
       <!-- 账号列表 -->
-      <div class="account-list-box">
+      <div class="account-list-box" v-if="accountVisible">
         <!-- 窗口选项栏 -->
-        <div class="chat-options">
-          <!-- <el-button>-</el-button>
-          <el-button>O</el-button>
-          <el-button>X</el-button> -->
-          <span class="hidden"></span>
-          <span class="max"></span>
-          <span class="close" @click="logout"></span>
-        </div>
         <div class="account-title">
           <p class="title">在线人数：{{ userList.length }}</p>
         </div>
@@ -349,5 +356,5 @@ const openUserInfo = () => {
   </div>
 </template>
 <style scoped lang="scss">
-@import '@/assets/scss/chat/';
+@use '@/assets/scss/chat/' as *;
 </style>

@@ -4,6 +4,13 @@
   }
 }
 
+.room-search-box {
+  .el-textarea__inner {
+    height: 2rem;
+    width: 11rem;
+  }
+}
+
 .message-input-box {
   .el-textarea__inner {
     height: 100%;

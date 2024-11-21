@@ -17,13 +17,21 @@ const userStore = useUserStore()
 // 加载动画
 const loading = ref(true)
 
-const accountVisible = ref(false)
+const memberVisible = ref(false)
 
 // 用户信息
 const userInfo: any = ref({
   userName: 'Ni',
   userImg: '../ACGN.png'
 })
+
+const messageOption = ref([
+  { "desc": "表情"    , "icon": "PictureRounded"},
+  { "desc": "发送图片", "icon": "Picture"},
+  { "desc": "发送文件", "icon": "Folder"},
+  { "desc": "语音通话", "icon": "Phone"},
+  { "desc": "视频通话", "icon": "Camera"},
+])
 
 // 消息列表
 const messageList: any = ref([])
@@ -40,7 +48,7 @@ const onEnter = (event: KeyboardEvent) => {
 const sendMessage = () => {
   if (textareaInput.value.trim() !== '') {
     socket.emit('sendMessage', {
-      from: userInfo.value.userAccount,
+      from: userInfo.value.usermember,
       name: userInfo.value.userName,
       message: textareaInput.value,
       img: userInfo.value.userImg
@@ -216,60 +224,57 @@ const openUserInfo = () => {
 </script>
 <template>
   <div id="chat" v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.8)">
-    <div class="chat-box">
+    <div class="chat-room">
       <!-- 用户信息列表 -->
-      <div class="user-info-box">
-        <div class="user-options-box">
-          <div class="user-option-box">
-            <div class="user-box">
-              <p class="user-name">{{ userInfo?.userName }}</p>
-            </div>
-            <el-avatar
-              class="user-img"
-              :src="`/images/userimg/${userInfo?.userImg}`"
-              @click="openUserInfo"
-            />
-            <el-icon class="option-icon active"><ChatLineSquare /></el-icon>
-            <el-icon class="option-icon"><User /></el-icon>
-            <el-icon class="option-icon setting"><Operation /></el-icon>
-          </div>
-          <div class="user-message-box">
-            <div class="search-box">
-              <el-input />
-            </div>
-            <div class="messages-box">
-              <el-scrollbar>
-                <div class="message-box active" v-for="item in 1" :key="item">
-                  <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
-                  <div class="content">
-                    <div class="title">
-                      <p class="name">ACGN 小屋</p>
-                      <p class="time">
-                        {{ formatMessageDate(messageList[messageList.length - 1]?.time) }}
-                      </p>
-                    </div>
-                    <div class="message">
-                      <p class="text">
-                        {{
-                          (
-                            messageList[messageList.length - 1]?.name +
-                            ':' +
-                            messageList[messageList.length - 1]?.message
-                          ).slice(0, 11)
-                        }}
-                      </p>
-                    </div>
-                  </div>
+      <div class="user-option-box">
+        <div class="user-box">
+          <p class="user-name">{{ userInfo?.userName }}</p>
+        </div>
+        <el-avatar
+          class="user-img"
+          :src="`/images/userimg/${userInfo?.userImg}`"
+          @click="openUserInfo"
+        />
+        <el-icon class="option-icon active"><ChatLineSquare /></el-icon>
+        <el-icon class="option-icon"><User /></el-icon>
+        <el-icon class="option-icon setting"><Operation /></el-icon>
+      </div>
+
+      <div class="room-box">
+        <div class="room-search-box">
+          <el-input resize="none" type="textarea"  />
+        </div>
+        <div class="room-list-box">
+          <el-scrollbar>
+            <div class="room-info-box" v-for="item in 4" :key="item">
+              <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
+              <div class="content">
+                <div class="title">
+                  <p class="name">ACGN 小屋</p>
+                  <p class="time">
+                    {{ formatMessageDate(messageList[messageList.length - 1]?.time) }}
+                  </p>
                 </div>
-              </el-scrollbar>
+                <div class="message" v-if="messageList.length">
+                  <p class="text">
+                    {{
+                      (
+                        messageList[messageList.length - 1]?.name +
+                        ':' +
+                        messageList[messageList.length - 1]?.message
+                      ).slice(0, 11)
+                    }}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </el-scrollbar>
         </div>
       </div>
 
       <!-- 消息列表 -->
-      <div class="message-list-box">
-        <div class="message-title">
+      <div class="room-preview">
+        <div class="room-name">
           <p class="title">ACGN 小屋</p>
           <div class="chat-options">
             <span class="hidden"></span>
@@ -277,78 +282,83 @@ const openUserInfo = () => {
             <span class="close" @click="logout"></span>
           </div>
         </div>
-        <div class="message-list">
-          <div class="loading-text" v-if="isLoading">
-            <el-icon class="is-loading"><Loading /></el-icon>加载中...
-          </div>
-          <el-scrollbar height="100%" ref="scrollbarRef" @scroll="handleScroll">
-            <div v-for="item in messageList" :key="item.name" class="message-item">
-              <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
-              <div class="message-content">
-                <div class="title">
-                  <span class="name">{{ item.name }}</span
-                  ><span class="time">{{ formatDate(item.time) }}</span>
-                </div>
-                <div class="text">
-                  <p
-                    class="content"
-                    :class="{
-                      other: item.name === userInfo.userName
-                    }"
-                  >
-                    {{ item.message }}
-                  </p>
+        <div class="chat-ui">
+          <div class="message-list">
+            <div class="loading-text" v-if="isLoading">
+              <el-icon class="is-loading"><Loading /></el-icon>加载中...
+            </div>
+            <el-scrollbar height="100%" ref="scrollbarRef" @scroll="handleScroll">
+              <div v-for="item in messageList" :key="item.name" class="message-item">
+                <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
+                <div class="message-content">
+                  <div class="title">
+                    <span class="name">{{ item.name }}</span
+                    ><span class="time">{{ formatDate(item.time) }}</span>
+                  </div>
+                  <div class="text">
+                    <p
+                      class="content"
+                      :class="{
+                        other: item.name === userInfo.userName
+                      }"
+                    >
+                      {{ item.message }}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </el-scrollbar>
-          <div class="account-visible-btn" v-if="accountVisible">&gt;</div>
-          <div class="account-visible-btn" v-else>&lt;</div>
-        </div>
-        <div class="message-input-box">
-          <div class="message-option">
-            <el-tooltip class="box-item" effect="dark" content="表情" placement="top-start">
-              <el-icon class="option-icon"><PictureRounded /></el-icon>
-            </el-tooltip>
-            <el-tooltip class="box-item" effect="dark" content="发送图片" placement="top-start">
-              <el-icon class="option-icon"><Picture /></el-icon>
-            </el-tooltip>
-            <el-tooltip class="box-item" effect="dark" content="发送文件" placement="top-start">
-              <el-icon class="option-icon"><Folder /></el-icon>
-            </el-tooltip>
-            <el-tooltip class="box-item" effect="dark" content="语音通话" placement="top-start">
-              <el-icon class="option-icon"><Phone /></el-icon>
-            </el-tooltip>
-            <el-tooltip class="box-item" effect="dark" content="视频通话" placement="top-start">
-              <el-icon class="option-icon"><Camera /></el-icon>
-            </el-tooltip>
+            </el-scrollbar>
           </div>
-          <el-input
-            type="textarea"
-            class="textarea"
-            resize="none"
-            v-model="textareaInput"
-            @keydown.enter="onEnter"
-          />
-          <el-button type="primary" class="send-button" @click="sendMessage">发送</el-button>
+          <div class="message-input-box">
+            <div class="message-option">
+              <el-tooltip class="box-item" effect="dark" content="表情" placement="top-start">
+                <el-icon class="option-icon"><PictureRounded /></el-icon>
+              </el-tooltip>
+              <el-tooltip class="box-item" effect="dark" content="发送图片" placement="top-start">
+                <el-icon class="option-icon"><Picture /></el-icon>
+              </el-tooltip>
+              <el-tooltip class="box-item" effect="dark" content="发送文件" placement="top-start">
+                <el-icon class="option-icon"><Folder /></el-icon>
+              </el-tooltip>
+              <el-tooltip class="box-item" effect="dark" content="语音通话" placement="top-start">
+                <el-icon class="option-icon"><Phone /></el-icon>
+              </el-tooltip>
+              <el-tooltip class="box-item" effect="dark" content="视频通话" placement="top-start">
+                <el-icon class="option-icon"><Camera /></el-icon>
+              </el-tooltip>
+            </div>
+            <el-input
+              type="textarea"
+              class="textarea"
+              resize="none"
+              v-model="textareaInput"
+              @keydown.enter="onEnter"
+            />
+            <el-button type="primary" class="send-button" @click="sendMessage">发送</el-button>
+          </div>
+
+          <el-button class="member-visible-btn" @click="memberVisible=!memberVisible" >
+            {{ memberVisible ? "&gt;" : "&lt;" }}
+          </el-button>
         </div>
+        <!-- 账号列表 -->
+        <div class="account-list-box" v-if="accountVisible">
+          <!-- 窗口选项栏 -->
+          <div class="member-title">
+            <p class="title">在线人数：{{ userList.length }}</p>
+          </div>
+          <div class="member-list">
+            <el-scrollbar height="100%">
+              <div class="member-item" v-for="item in userList" :key="item">
+                <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
+                <div class="name">{{ item.name }}</div>
+              </div>
+            </el-scrollbar>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 账号列表 -->
-      <div class="account-list-box" v-if="accountVisible">
-        <!-- 窗口选项栏 -->
-        <div class="account-title">
-          <p class="title">在线人数：{{ userList.length }}</p>
-        </div>
-        <div class="account-list">
-          <el-scrollbar height="100%">
-            <div class="account-item" v-for="item in userList" :key="item">
-              <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
-              <div class="name">{{ item.name }}</div>
-            </div>
-          </el-scrollbar>
-        </div>
-      </div>
     </div>
 
     <!-- 用户信息表 -->

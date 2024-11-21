@@ -1,5 +1,5 @@
 class Result:
-    def __init__(self, code=0, msg=None, data=None):
+    def __init__(self, code=1, msg=None, data=None):
         self.code = code
         self.msg = msg
         self.data = data

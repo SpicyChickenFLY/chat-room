@@ -10,7 +10,7 @@ app = Flask(__name__, static_folder="./static/assets/", template_folder="./stati
 CORS(app)
 api_add_resouces(Api(app))
 jwt = JWTManager(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 
 @app.route("/", methods=["GET"])

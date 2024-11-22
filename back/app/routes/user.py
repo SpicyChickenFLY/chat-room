@@ -7,16 +7,10 @@ from app import services
 from app import entities
 from app.entities.result import Result
 
-users_db = {}
-
-
-class UserApi(Resource):
-    """注册"""
-    def get(self):
-        return Result(msg="获取成功").to_dict(), 201
+class UsersApi(Resource):
 
     def post(self):
-        """获取管理器数据"""
+        """创建新用户"""
         data = request.get_json()
         username = data["username"]
         password = data["password"]
@@ -31,5 +25,14 @@ class UserApi(Resource):
         )
         services.create_user(user)
         return Result(msg="注册成功").to_dict(), 201
+
+
+
+class UserApi(Resource):
+    """注册"""
+    def get(self, id):
+        user = services.get_user(id)
+        return Result(msg="获取成功", data=user.to_dict()).to_dict(), 201
+
 
 

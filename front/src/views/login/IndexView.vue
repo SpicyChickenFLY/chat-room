@@ -6,31 +6,33 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores'
 import { getSocket } from '@/utils/socket'
 
-// 用户仓库
 const userStore = useUserStore()
-
-// 路由
 const router = useRouter()
 
-// 登录
-const loginForm = ref({
+const registerPanelVisable = ref(false)
+const form = ref({
   username: '',
   password: ''
 })
-const login = () => {
-  if (loginForm.value.username === '') {
-    ElMessage({ message: '请输入用户名', type: 'error', grouping: true })
-    return
-  }
-  if (loginForm.value.password === '') {
-    ElMessage({ message: '请输入密码', type: 'error', grouping: true })
-    return
-  }
 
+const validateForm = () => {
+  if (form.value.username === '') {
+    ElMessage({ message: '请输入用户名', type: 'error', grouping: true })
+    return false
+  }
+  if (form.value.password === '') {
+    ElMessage({ message: '请输入密码', type: 'error', grouping: true })
+    return false
+  }
+  return true
+}
+
+const login = () => {
+  if (!validateForm()) { return }
   request
     .post('/api/auth/login', {
-      username: loginForm.value.username,
-      password: loginForm.value.password
+      username: form.value.username,
+      password: form.value.password
     })
     .then((res: any) => {
       if (res.code === 1) {
@@ -48,33 +50,18 @@ const login = () => {
 }
 
 // 注册
-const registerPanelVisable = ref(false)
-const registerForm = ref({
-  username: '',
-  password: '',
-  phone: '',
-  code: ''
-})
 const register = () => {
-  if (registerForm.value.username === '') {
-    ElMessage({ message: '请输入用户名', type: 'error', grouping: true })
-    return
-  }
-  if (registerForm.value.password === '') {
-    ElMessage({ message: '请输入密码', type: 'error', grouping: true })
-    return
-  }
-
+  if (!validateForm()) { return }
   request
-    .post('/api/auth/register', {
-      username: registerForm.value.username,
-      password: registerForm.value.password,
+    .post('/api/user', {
+      username: form.value.username,
+      password: form.value.password,
     })
     .then((res: any) => {
       if (res.code === 1) {
         ElMessage.success({ message: res.message })
-        registerForm.value.username = ''
-        registerForm.value.password = ''
+        form.value.username = ''
+        form.value.password = ''
         registerPanelVisable.value = false
       } else {
         ElMessage.error({
@@ -119,7 +106,7 @@ if (userStore.token) {
               name="login-username"
               class="login-username"
               id="login-username"
-              v-model="loginForm.username"
+              v-model="form.username"
               placeholder="用户名"
               autocomplete="off"
             />
@@ -128,7 +115,7 @@ if (userStore.token) {
               name="login-password"
               class="login-password"
               id="login-password"
-              v-model="loginForm.password"
+              v-model="form.password"
               placeholder="密码"
               autocomplete="off"
             />
@@ -145,7 +132,7 @@ if (userStore.token) {
               name="register-username"
               class="register-username"
               id="register-username"
-              v-model="registerForm.username"
+              v-model="form.username"
               placeholder="请输入用户名"
               autocomplete="off"
             />
@@ -154,7 +141,7 @@ if (userStore.token) {
               name="register-password"
               class="register-password"
               id="register-password"
-              v-model="registerForm.password"
+              v-model="form.password"
               placeholder="请输入密码"
               autocomplete="off"
             />

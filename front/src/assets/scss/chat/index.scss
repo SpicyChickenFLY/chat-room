@@ -37,17 +37,18 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+        justify-content: center;
         width: 100%;
         height: 4.375rem;
 
-        .user-name {
-          font-size: 1.5rem;
-          margin-left: 1.75rem;
+        .user-img {
+          width: 3.125rem;
+          height: 3.125rem;
         }
       }
 
       .option-icon {
-        margin-bottom: 1.5rem;
+        margin-top: 1.5rem;
         color: #c6c6c6;
         font-size: 2rem;
         font-weight: 100;
@@ -64,7 +65,7 @@
 
         &.setting {
           position: absolute;
-          bottom: 0rem;
+          bottom: 1.5rem;
         }
       }
     }

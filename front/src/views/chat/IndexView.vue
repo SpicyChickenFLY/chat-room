@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
+import { ElMessage, ElScrollbar, ElMessageBox } from 'element-plus'
+
 import { useUserStore } from '@/stores'
 import request from '@/utils/request'
-import { ElMessage, ElScrollbar, ElMessageBox } from 'element-plus'
 import router from '@/router'
 import { formatDate, formatMessageDate } from '@/utils'
 import { getSocket } from '@/utils/socket'
@@ -10,90 +11,90 @@ import UserInfo from './components/UserInfo.vue'
 
 // socket
 let socket: any
-
-// 用户仓库
 const userStore = useUserStore()
+const scrollbarRef: any = ref<InstanceType<typeof ElScrollbar> | null>(null)
 
-// 加载动画
-const loading = ref(true)
-
-const memberVisible = ref(false)
-
-// 用户信息
 const userInfo: any = ref({
-  userName: 'Ni',
-  userImg: '../ACGN.png'
+  name: '',
+  avatar: '../ACGN.png'
 })
 
-const messageOption = ref([
-  { "desc": "表情"    , "icon": "PictureRounded"},
-  { "desc": "发送图片", "icon": "Picture"},
-  { "desc": "发送文件", "icon": "Folder"},
-  { "desc": "语音通话", "icon": "Phone"},
-  { "desc": "视频通话", "icon": "Camera"},
-])
-
-// 消息列表
+const loading = ref(true)
+const memberVisible = ref(false)
+const userList: any = ref([])
 const messageList: any = ref([])
-// 滚动条
-const scrollbarRef: any = ref<InstanceType<typeof ElScrollbar> | null>(null)
-// 文本域
 const textareaInput = ref('')
-// 回车发送消息
+
 const onEnter = (event: KeyboardEvent) => {
   event.preventDefault() // 阻止默认的回车行为（换行）
   sendMessage()
 }
+
 // 发送信息
 const sendMessage = () => {
   if (textareaInput.value.trim() !== '') {
     socket.emit('sendMessage', {
       from: userInfo.value.usermember,
-      name: userInfo.value.userName,
+      name: userInfo.value.name,
       message: textareaInput.value,
-      img: userInfo.value.userImg
+      img: userInfo.value.avatar
     })
 
     textareaInput.value = ''
   }
 }
 
-// 用户列表
-const userList: any = ref([])
+const getUserInfo = (userId) => {
+  request
+    .get(`/api/user/${userId}`)
+    .then((res: any) => {
+      userInfo.value = res.data
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
+}
+
+const getUserRoomInfo = (userId) => {
+  request
+    .get(`/api/room`)
+    .then((res: any) => userInfo.value = res.data)
+    .catch((err: any) => console.log(err))
+}
 
 // 初始化
 const initChat = () => {
   const token = userStore.token
-  if (token) {
-    // 获取用户信息
-    request
-      .get('/api/user?token=' + userStore.token)
-      .then((res: any) => {
-        // console.log(res)
-        userInfo.value = res.data
-
-        // 获取消息列表
-        request
-          .get('/api/user/message?page=' + page.value)
-          .then((res: any) => {
-            // console.log(res)
-            messageList.value = res.data
-            page.value += 1
-            autoScroll()
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-
-        loading.value = false
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  } else {
+  const userId = JSON.parse(atob(token.split('.')[1])).sub
+  if (!token) {
     ElMessage.error('请先登录！')
     router.replace('/')
+    return
   }
+  getUserInfo(userId)
+  request
+    .get(`/api/user/${userId}`)
+    .then((res: any) => {
+      userInfo.value = res.data
+
+      // 获取消息列表
+      request
+        .get('/api/user//message?page=' + page.value)
+        .then((res: any) => {
+          messageList.value = res.data
+          page.value += 1
+          autoScroll()
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      loading.value = false
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
   loading.value = false
 
   socket = getSocket()
@@ -101,17 +102,12 @@ const initChat = () => {
   socket.off('message')
   socket.on('message', (data: any) => {
     console.log(data)
-    // 接收信息
     if (data.type === 'message') {
       messageList.value.push(data.data)
       autoScroll()
-    }
-    // 获取用户列表
-    if (data.type === 'userList') {
+    } else if (data.type === 'userList') {
       userList.value = data.data
-    }
-    // 踢出
-    if (data.type === 'kick') {
+    } else if (data.type === 'kick') {
       ElMessage.error(data.message)
       userStore.token = ''
       router.push('/')
@@ -119,9 +115,7 @@ const initChat = () => {
   })
 
   // 加入房间
-  socket.emit('joinRoom', {
-    token: userStore.token
-  })
+  socket.emit('joinRoom', { token: userStore.token })
 
   socket.off('disconnect')
   socket.on('disconnect', () => {
@@ -154,15 +148,10 @@ const fetchMessages = async () => {
   request
     .get('/api/user/message?page=' + page.value)
     .then(async (res: any) => {
-      // console.log(res)
       const newMessages = res.data
-
-      if (newMessages.length < 20) {
-        hasMore.value = false
-      }
+      hasMore.value = newMessages.length < 20
 
       const changeMessage = setTimeout(() => {
-        // messageList.value = [...newMessages, ...messageList.value]
         messageList.value.unshift(...newMessages)
 
         isLoading.value = false
@@ -228,13 +217,12 @@ const openUserInfo = () => {
       <!-- 用户信息列表 -->
       <div class="user-option-box">
         <div class="user-box">
-          <p class="user-name">{{ userInfo?.userName }}</p>
+          <el-avatar
+            class="user-img"
+            :src="`/images/userimg/${userInfo?.avatar}`"
+            @click="openUserInfo"
+          />
         </div>
-        <el-avatar
-          class="user-img"
-          :src="`/images/userimg/${userInfo?.userImg}`"
-          @click="openUserInfo"
-        />
         <el-icon class="option-icon active"><ChatLineSquare /></el-icon>
         <el-icon class="option-icon"><User /></el-icon>
         <el-icon class="option-icon setting"><Operation /></el-icon>
@@ -242,7 +230,7 @@ const openUserInfo = () => {
 
       <div class="room-box">
         <div class="room-search-box">
-          <el-input resize="none" type="textarea"  />
+          <el-input resize="none" type="textarea" />
         </div>
         <div class="room-list-box">
           <el-scrollbar>
@@ -299,7 +287,7 @@ const openUserInfo = () => {
                     <p
                       class="content"
                       :class="{
-                        other: item.name === userInfo.userName
+                        other: item.name === userInfo.name
                       }"
                     >
                       {{ item.message }}
@@ -337,8 +325,8 @@ const openUserInfo = () => {
             <el-button type="primary" class="send-button" @click="sendMessage">发送</el-button>
           </div>
 
-          <el-button class="member-visible-btn" @click="memberVisible=!memberVisible" >
-            {{ memberVisible ? "&gt;" : "&lt;" }}
+          <el-button class="member-visible-btn" @click="memberVisible = !memberVisible">
+            {{ memberVisible ? '&gt;' : '&lt;' }}
           </el-button>
         </div>
         <!-- 账号列表 -->
@@ -356,9 +344,7 @@ const openUserInfo = () => {
             </el-scrollbar>
           </div>
         </div>
-
       </div>
-
     </div>
 
     <!-- 用户信息表 -->

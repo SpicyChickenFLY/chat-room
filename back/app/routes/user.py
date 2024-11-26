@@ -21,7 +21,8 @@ class UsersApi(Resource):
             return Result(msg="用户名已存在").to_dict(), 400
 
         user = entities.User(
-            nickname=username, token=security.generate_password_hash(password)
+            nickname=username,
+            token=security.generate_password_hash(password)
         )
         services.create_user(user)
         return Result(msg="注册成功").to_dict(), 201
@@ -32,7 +33,9 @@ class UserApi(Resource):
     """注册"""
     def get(self, id):
         user = services.get_user(id)
-        return Result(msg="获取成功", data=user.to_dict()).to_dict(), 201
+        if user is None:
+            return Result(), 500
+        return Result(msg="获取成功", data=user.id).to_dict(), 201
 
 
 

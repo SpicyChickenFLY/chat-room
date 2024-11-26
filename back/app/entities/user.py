@@ -1,24 +1,14 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, SmallInteger, DateTime
-from sqlalchemy.orm import declarative_base
+from app.store import db
 
-Base = declarative_base()
 
-class User(Base):
+class User(db.Model):
     __tablename__ = "user_list"
 
-    id = Column(Integer, primary_key=True)
-    nickname = Column(String)
-    token = Column(String)
-    avatar = Column(String, default="avatar_default.png")
-    status = Column(SmallInteger, default=0)
-    create_time = Column(DateTime, default=datetime.datetime.now())
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.nickname,
-            "avatar": self.avatar,
-            "status": self.status
-        }
+    id = db.Column(db.Integer, primary_key=True)
+    nickname = db.Column(db.String, unique=True)
+    token = db.Column(db.String)
+    avatar = db.Column(db.String, default="avatar_default.png")
+    status = db.Column(db.SmallInteger, default=0)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now())

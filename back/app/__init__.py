@@ -5,12 +5,14 @@ from flask_restful import Api
 from flask_cors import CORS
 
 from .routes import api_add_resouces
+from .store import init_db
 
 app = Flask(__name__, static_folder="./static/assets/", template_folder="./static/")
 CORS(app)
-api_add_resouces(Api(app))
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+api_add_resouces(Api(app))
+init_db(app)
 
 
 @app.route("/", methods=["GET"])

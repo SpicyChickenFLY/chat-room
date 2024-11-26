@@ -1,18 +1,10 @@
-from sqlalchemy import Column, Integer, String, SmallInteger, DateTime
-from sqlalchemy.orm import declarative_base
+from app.store import db
 
 
-class Room(declarative_base()):
+class Room(db.Model):
     __tablename__ = "room_list"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    avatar = Column(String)
-    create_time = Column(DateTime)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "avatar": self.avatar,
-        }
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    avatar = db.Column(db.String)
+    create_time = db.Column(db.DateTime)

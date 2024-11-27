@@ -72,28 +72,6 @@ const initChat = () => {
     return
   }
   getUserInfo(userId)
-  request
-    .get(`/api/user/${userId}`)
-    .then((res: any) => {
-      userInfo.value = res.data
-
-      // 获取消息列表
-      request
-        .get('/api/user//message?page=' + page.value)
-        .then((res: any) => {
-          messageList.value = res.data
-          page.value += 1
-          autoScroll()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-
-      loading.value = false
-    })
-    .catch((err) => {
-      console.log(err)
-    })
 
   loading.value = false
 
@@ -231,6 +209,7 @@ const openUserInfo = () => {
       <div class="room-box">
         <div class="room-search-box">
           <el-input resize="none" type="textarea" />
+          <el-button size="default"><el-icon><Plus /></el-icon></el-button>
         </div>
         <div class="room-list-box">
           <el-scrollbar>

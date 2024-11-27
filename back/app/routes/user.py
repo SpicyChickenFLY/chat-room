@@ -23,7 +23,7 @@ class UsersApi(Resource):
         user.nickname = username
         user.token = security.generate_password_hash(password)
         services.create_user(user)
-        return {"data": user.id}, 201
+        return {"msg": "登陆成功", "data": user.id}, 201
 
 
 class UserApi(Resource):
@@ -33,4 +33,11 @@ class UserApi(Resource):
         user = services.get_user(id)
         if user is None:
             return {"msg": "未查询到用户信息"}, 404
-        return {"data": user.id}, 200
+        return {
+            "data": {
+                "id": user.id,
+                "nickname": user.nickname,
+                "avatar": user.avatar,
+                "status": user.status,
+            }
+        }, 200

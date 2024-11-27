@@ -1,0 +1,9 @@
+GET http://localhost:5000/api/user/1
+
+###
+
+GET http://localhost:5000/api/user-room
+
+{
+    "userId": 1
+}

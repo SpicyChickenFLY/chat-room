@@ -124,6 +124,9 @@ const autoScroll = () => {
   })
 }
 
+const findRoom = () => {
+}
+
 // 获取历史数据
 const hasMore = ref(true)
 const isLoading = ref(false)
@@ -221,8 +224,16 @@ const openUserInfo = () => {
 
       <div class="room-box">
         <div class="room-search-box">
-          <el-input resize="none" type="textarea" />
-          <el-button size="default"><el-icon><Plus /></el-icon></el-button>
+          <el-input resize="none" type="textarea" class="search-input"/>
+          <el-popover trigger="click">
+              <div><el-button><el-icon><Message /></el-icon>create room</el-button></div>
+              <div><el-button><el-icon><User /></el-icon>add friend/room</el-button></div>
+            <template #reference>
+              <el-button size="default" class="room-add-btn" @click="findRoom">
+                <el-icon><Plus /></el-icon>
+              </el-button>
+            </template>
+          </el-popover>
         </div>
         <div class="room-list-box">
           <el-scrollbar>

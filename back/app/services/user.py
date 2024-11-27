@@ -9,7 +9,7 @@ def get_user(id: str):
     return db.session.get(User, id)
 
 def find_user_by_nickname(nickname: str):
-    return db.query.filter_by(nickname=nickname).one()
+    return User.query.filter_by(nickname=nickname).first()
 
 
 def create_user(user: User):

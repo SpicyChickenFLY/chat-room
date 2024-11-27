@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import { ElMessage, ElScrollbar, ElMessageBox } from 'element-plus'
 
 import { useUserStore } from '@/stores'
@@ -13,6 +13,17 @@ import UserInfo from './components/UserInfo.vue'
 let socket: any
 const userStore = useUserStore()
 const scrollbarRef: any = ref<InstanceType<typeof ElScrollbar> | null>(null)
+const userStatusColor = computed(() => {
+  return function(status: string) {
+    console.log("status", status)
+    const map = {
+      "online": "success",
+      "busy": "danger",
+      "hide": "primary",
+    }
+    return status in map ? map[status] : "info"
+  }
+})
 
 const userInfo: any = ref({
   name: '',
@@ -44,7 +55,7 @@ const sendMessage = () => {
   }
 }
 
-const getUserInfo = (userId) => {
+const getUserInfo = (userId: string) => {
   request
     .get(`/api/user/${userId}`)
     .then((res: any) => {
@@ -55,7 +66,7 @@ const getUserInfo = (userId) => {
     })
 }
 
-const getUserRoomInfo = (userId) => {
+const getUserRoomInfo = (userId: string) => {
   request
     .get(`/api/room`)
     .then((res: any) => userInfo.value = res.data)
@@ -195,11 +206,13 @@ const openUserInfo = () => {
       <!-- 用户信息列表 -->
       <div class="user-option-box">
         <div class="user-box">
-          <el-avatar
-            class="user-img"
-            :src="`/images/userimg/${userInfo?.avatar}`"
-            @click="openUserInfo"
-          />
+          <el-badge class="user-status" is-dot :type="userStatusColor(userInfo?.status)">
+            <el-avatar
+              class="user-img"
+              :src="`/images/userimg/${userInfo?.avatar}`"
+              @click="openUserInfo"
+            />
+          </el-badge>
         </div>
         <el-icon class="option-icon active"><ChatLineSquare /></el-icon>
         <el-icon class="option-icon"><User /></el-icon>

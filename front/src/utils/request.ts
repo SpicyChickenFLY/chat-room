@@ -46,7 +46,11 @@ request.interceptors.response.use(
   },
   async (error) => {
     // error.message
-    ElMessage.error(error.message)
+    if (error.response && error.response.data) {
+      ElMessage.error(error.response.data.msg)
+    } else{
+      ElMessage.error(error.message)
+    }
     return Promise.reject(error)
   }
 )

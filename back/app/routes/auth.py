@@ -28,7 +28,7 @@ class LoginApi(Resource):
         return (
             Result(
                 msg="登录成功",
-                data={"userInfo": user.to_dict(), "accessToken": access_token},
+                data={"accessToken": access_token},
             ).to_dict(),
             200,
         )

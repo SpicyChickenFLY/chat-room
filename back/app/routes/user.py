@@ -23,6 +23,13 @@ class UsersApi(Resource):
         user.nickname = username
         user.token = security.generate_password_hash(password)
         services.create_user(user)
+
+        user_room = entities.UserRoom()
+        user_room.user_id = user.id
+        user_room.room_id = 0
+        user_room.authority = 1
+        services.create_user_room(user_room)
+
         return {"msg": "登陆成功", "data": user.id}, 201
 
 

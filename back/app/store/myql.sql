@@ -14,9 +14,11 @@ CREATE TABLE `room_list` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL,
     `avatar` varchar(50) DEFAULT NULL,
+    `single` smallint(4) DEFAULT '0',
     `create_time` datetime DEFAULT NOW(),
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into room_list values(0, "lobby", "default_avatar.png", 0, now());
 
 DROP TABLE IF EXISTS `user_room_map`;
 CREATE TABLE `user_room_map` (

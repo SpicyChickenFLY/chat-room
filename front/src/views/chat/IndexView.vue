@@ -8,6 +8,7 @@ import router from '@/router'
 import { formatDate, formatMessageDate } from '@/utils'
 import { getSocket } from '@/utils/socket'
 import UserInfo from './components/UserInfo.vue'
+import RoomCreate from './components/RoomCreate.vue'
 
 // socket
 let socket: any
@@ -68,7 +69,7 @@ const getUserInfo = (userId: string) => {
 
 const getUserRoomInfo = (userId: string) => {
   request
-    .get(`/api/room`)
+    .get(`/api/user-room`, {userId})
     .then((res: any) => userInfo.value = res.data)
     .catch((err: any) => console.log(err))
 }
@@ -83,6 +84,7 @@ const initChat = () => {
     return
   }
   getUserInfo(userId)
+  getUserRoomInfo(userId)
 
   loading.value = false
 
@@ -202,6 +204,14 @@ const openUserInfo = () => {
   // console.log(userInfoRef.value)
   userInfoRef.value.open()
 }
+
+// open create room dialog
+const roomCreateRef: any = ref(null)
+const openCreateRoom = () => {
+  roomCreateRef.value.open()
+}
+
+
 </script>
 <template>
   <div id="chat" v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.8)">
@@ -226,7 +236,7 @@ const openUserInfo = () => {
         <div class="room-search-box">
           <el-input resize="none" type="textarea" class="search-input"/>
           <el-popover trigger="click">
-              <div><el-button><el-icon><Message /></el-icon>create room</el-button></div>
+              <div><el-button @click="openCreateRoom"><el-icon><Message /></el-icon>create room</el-button></div>
               <div><el-button><el-icon><User /></el-icon>add friend/room</el-button></div>
             <template #reference>
               <el-button size="default" class="room-add-btn" @click="findRoom">
@@ -352,6 +362,7 @@ const openUserInfo = () => {
 
     <!-- 用户信息表 -->
     <UserInfo ref="userInfoRef"></UserInfo>
+    <RoomCreate ref="roomCreateRef"></RoomCreate>
   </div>
 </template>
 <style scoped lang="scss">

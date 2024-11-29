@@ -17,7 +17,7 @@ class UserRoomApi(Resource):
         """用户加入房间"""
         user_id = request.get_json()['userId']
         room_id = request.get_json()['roomId']
-        user_room = entities.UserRoom()
+        user_room = entities.UserRoomMap()
         user_room.room_id=room_id
         user_room.user_id=user_id
         services.create_user_room(user_room)

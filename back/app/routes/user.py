@@ -24,7 +24,7 @@ class UsersApi(Resource):
         user.token = security.generate_password_hash(password)
         services.create_user(user)
 
-        user_room = entities.UserRoom()
+        user_room = entities.UserRoomMap()
         user_room.user_id = user.id
         user_room.room_id = 0
         user_room.authority = 1
@@ -48,3 +48,9 @@ class UserApi(Resource):
                 "status": user.status,
             }
         }, 200
+
+class UserByRoomApi(Resource):
+    """房间成员列表"""
+
+    def get(self, room_id):
+        pass

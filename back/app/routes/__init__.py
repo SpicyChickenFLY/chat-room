@@ -1,6 +1,7 @@
 from . import user_room
 from . import auth
 from . import user
+from . import room
 
 def api_add_resouces(api):
     # 登陆接口
@@ -11,3 +12,6 @@ def api_add_resouces(api):
     # 房间用户映射关系
     api.add_resource(user_room.UserRoomsApi, '/api/user-room')
     api.add_resource(user_room.UserRoomApi, '/api/user-room/<room_id>/<user_id>')
+
+    api.add_resource(room.RoomByUserApi, '/api/user/<user_id>/room')
+    api.add_resource(user.UserByRoomApi, '/api/room/<room_id>/user')

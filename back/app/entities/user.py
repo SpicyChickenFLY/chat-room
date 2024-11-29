@@ -12,3 +12,5 @@ class User(db.Model):
     avatar = db.Column(db.String, default="avatar_default.png")
     status = db.Column(db.SmallInteger, default=0)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now())
+
+    user_room_maps = db.relationship('UserRoomMap',  back_populates="user")

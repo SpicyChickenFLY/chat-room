@@ -10,5 +10,5 @@ SQL_PASSWORD = "chat"  # 数据库密码
 SQL_DATABASE = "chat"  # 数据库名称
 CONN_STR = f"mysql+pymysql://{SQL_USERNAME}:{SQL_PASSWORD}@{SQL_HOST}:{SQL_PORT}/{SQL_DATABASE}"
 
-def init_mysql_config(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = CONN_STR
+def get_mysql_uri():
+    return CONN_STR

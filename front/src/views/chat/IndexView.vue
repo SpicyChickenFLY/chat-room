@@ -15,14 +15,13 @@ let socket: any
 const userStore = useUserStore()
 const scrollbarRef: any = ref<InstanceType<typeof ElScrollbar> | null>(null)
 const userStatusColor = computed(() => {
-  return function(status: string) {
-    console.log("status", status)
+  return function (status: string) {
     const map = {
-      "online": "success",
-      "busy": "danger",
-      "hide": "primary",
+      online: 'success',
+      busy: 'danger',
+      hide: 'primary'
     }
-    return status in map ? map[status] : "info"
+    return status in map ? map[status] : 'info'
   }
 })
 
@@ -30,6 +29,8 @@ const userInfo: any = ref({
   name: '',
   avatar: '../ACGN.png'
 })
+
+const roomListInfo = ref([])
 
 const loading = ref(true)
 const memberVisible = ref(false)
@@ -59,19 +60,17 @@ const sendMessage = () => {
 const getUserInfo = (userId: string) => {
   request
     .get(`/api/user/${userId}`)
-    .then((res: any) => {
-      userInfo.value = res.data
-    })
-    .catch((err: any) => {
-      console.log(err)
-    })
+    .then((res: any) => (userInfo.value = res.data))
+    .catch((err: any) => console.log("ERROR", err))
 }
 
 const getUserRoomInfo = (userId: string) => {
   request
-    .get(`/api/user-room`, {userId})
-    .then((res: any) => userInfo.value = res.data)
-    .catch((err: any) => console.log(err))
+    .get(`/api/user/${userId}/room`)
+    .then((res: any) => (roomListInfo.value = res.data))
+    .catch((err: any) => console.log("ERROR", err))
+
+  console.log(roomListInfo.value)
 }
 
 // 初始化
@@ -89,10 +88,8 @@ const initChat = () => {
   loading.value = false
 
   socket = getSocket()
-
   socket.off('message')
   socket.on('message', (data: any) => {
-    console.log(data)
     if (data.type === 'message') {
       messageList.value.push(data.data)
       autoScroll()
@@ -126,8 +123,7 @@ const autoScroll = () => {
   })
 }
 
-const findRoom = () => {
-}
+const findRoom = () => {}
 
 // 获取历史数据
 const hasMore = ref(true)
@@ -201,7 +197,6 @@ const logout = () => {
 // 打开用户资料
 const userInfoRef: any = ref(null)
 const openUserInfo = () => {
-  // console.log(userInfoRef.value)
   userInfoRef.value.open()
 }
 
@@ -210,8 +205,6 @@ const roomCreateRef: any = ref(null)
 const openCreateRoom = () => {
   roomCreateRef.value.open()
 }
-
-
 </script>
 <template>
   <div id="chat" v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.8)">
@@ -234,10 +227,18 @@ const openCreateRoom = () => {
 
       <div class="room-box">
         <div class="room-search-box">
-          <el-input resize="none" type="textarea" class="search-input"/>
+          <el-input resize="none" type="textarea" class="search-input" />
           <el-popover trigger="click">
-              <div><el-button @click="openCreateRoom"><el-icon><Message /></el-icon>create room</el-button></div>
-              <div><el-button><el-icon><User /></el-icon>add friend/room</el-button></div>
+            <div>
+              <el-button @click="openCreateRoom"
+                ><el-icon><Message /></el-icon>create room</el-button
+              >
+            </div>
+            <div>
+              <el-button
+                ><el-icon><User /></el-icon>add friend/room</el-button
+              >
+            </div>
             <template #reference>
               <el-button size="default" class="room-add-btn" @click="findRoom">
                 <el-icon><Plus /></el-icon>
@@ -247,14 +248,12 @@ const openCreateRoom = () => {
         </div>
         <div class="room-list-box">
           <el-scrollbar>
-            <div class="room-info-box" v-for="item in 4" :key="item">
+            <div class="room-info-box" v-for="item in roomListInfo" :key="item">
               <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
               <div class="content">
                 <div class="title">
-                  <p class="name">ACGN 小屋</p>
-                  <p class="time">
-                    {{ formatMessageDate(messageList[messageList.length - 1]?.time) }}
-                  </p>
+                  <p class="name">{{item.roomName}}</p>
+                  <p class="time"></p>
                 </div>
                 <div class="message" v-if="messageList.length">
                   <p class="text">

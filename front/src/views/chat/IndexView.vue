@@ -255,16 +255,8 @@ const openCreateRoom = () => {
                   <p class="name">{{item.roomName}}</p>
                   <p class="time"></p>
                 </div>
-                <div class="message" v-if="messageList.length">
-                  <p class="text">
-                    {{
-                      (
-                        messageList[messageList.length - 1]?.name +
-                        ':' +
-                        messageList[messageList.length - 1]?.message
-                      ).slice(0, 11)
-                    }}
-                  </p>
+                <div class="message">
+                  <p class="text"> </p>
                 </div>
               </div>
             </div>

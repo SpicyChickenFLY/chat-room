@@ -256,7 +256,10 @@ const openCreateRoom = () => {
                   <p class="time"></p>
                 </div>
                 <div class="message">
-                  <p class="text"> </p>
+                  <p class="text">
+                    <span>{{item.latestChatContent}}</span>
+                    <el-badge v-if="item.unreadMessages>0" :value="item.unreadMessages" :max="99" />
+                  </p>
                 </div>
               </div>
             </div>

@@ -139,6 +139,13 @@
           .message {
             font-size: 0.875rem;
             color: #4f4f4f;
+
+            .text {
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
           }
         }
       }

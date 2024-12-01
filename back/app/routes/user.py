@@ -26,7 +26,7 @@ class UsersApi(Resource):
 
         user_room = entities.UserRoomMap()
         user_room.user_id = user.id
-        user_room.room_id = 0
+        user_room.room_id = 1
         user_room.authority = 1
         services.create_user_room(user_room)
 

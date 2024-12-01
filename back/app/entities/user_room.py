@@ -7,7 +7,7 @@ class UserRoomMap(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room_list.id'), primary_key=True)
     authority = db.Column(db.Integer)
     mute = db.Column(db.Integer)
-    last_confirm_chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'))
+    last_confirm_chat_id = db.Column(db.Integer, db.ForeignKey('chat_list.id'))
     create_time = db.Column(db.DateTime)
 
     user = db.relationship('User', back_populates="user_room_maps")

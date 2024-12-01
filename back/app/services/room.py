@@ -1,8 +1,7 @@
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
-from app.entities import Room
-from app import entities
+from app.entities import *
 from app.store import db
 
 
@@ -25,54 +24,30 @@ def create_room(room: Room):
 
 
 def get_room_details_for_user(user_id: int):
-    # Subquery to find the latest chat for each room
+    #1 Subquery to find the latest chat for each room
     latest_chat_subquery = (
         db.session.query(
-            entities.Chat.room_id, func.max(entities.Chat.id).label("max_id")
+            Chat.room_id,
+            func.max(Chat.id).label('latest_chat_id'),
+            Chat.content.label('latest_chat_content')
         )
-        .group_by(entities.Chat.room_id)
-        .subquery()
-    )
+        .group_by(Chat.room_id)
+    ).subquery()
 
-    # Join the latest chat subquery with the chat table to get the latest chat content
-    latest_chat_query = (
+    # 2. 连接 user_room_map, room, chat 以及最新消息子查询
+    query = (
         db.session.query(
-            entities.Chat.room_id,
-            entities.Chat.id.label("latest_chat_id"),
-            entities.Chat.content.label("latest_chat_content"),
+            UserRoomMap.room_id,
+            Room.name.label('room_name'),
+            func.count(Chat.id).label('unread_messages'),
+            latest_chat_subquery.c.latest_chat_content
         )
-        .join(
-            latest_chat_subquery,
-            (entities.Chat.room_id == latest_chat_subquery.c.room_id)
-            & (entities.Chat.id == latest_chat_subquery.c.max_id),
-        )
-        .subquery()
-    )
+        .join(Room, Room.id == UserRoomMap.room_id)
+        .outerjoin(Chat, Chat.room_id == UserRoomMap.room_id)
+        .outerjoin(latest_chat_subquery, latest_chat_subquery.c.room_id == UserRoomMap.room_id)
+        .filter(UserRoomMap.user_id == user_id)
+        .filter((Chat.id > UserRoomMap.last_confirm_chat_id) | (UserRoomMap.last_confirm_chat_id == None))
+        .group_by(UserRoomMap.room_id, Room.name, latest_chat_subquery.c.latest_chat_id, latest_chat_subquery.c.latest_chat_content)
+    ).all()
 
-    # Main query to get the user room info
-    room_details = (
-        db.session.query(
-            entities.UserRoomMap.room_id,
-            func.count(entities.Chat.id).label("unread_messages"),
-            latest_chat_query.c.latest_chat_id,
-            latest_chat_query.c.latest_chat_content,
-        )
-        .outerjoin(
-            entities.Chat,
-            (entities.UserRoomMap.room_id == entities.Chat.room_id)
-            & (entities.Chat.id > entities.UserRoomMap.last_confirm_chat_id),
-        )
-        .outerjoin(
-            latest_chat_query,
-            entities.UserRoomMap.room_id == latest_chat_query.c.room_id,
-        )
-        .filter(entities.UserRoomMap.user_id == user_id)
-        .group_by(
-            entities.UserRoomMap.room_id,
-            latest_chat_query.c.latest_chat_id,
-            latest_chat_query.c.latest_chat_content,
-        )
-        .all()
-    )
-
-    return room_details
+    return query

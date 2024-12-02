@@ -46,37 +46,3 @@ CREATE TABLE `chat_list` (
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-SELECT 
-    urm.room_id,
-    r.name AS room_name,
-    COUNT(c.id) AS unread_messages,
-    lc.latest_chat_id,
-    lc.latest_chat_content
-FROM user_room_map AS urm
-JOIN room_list AS r ON urm.room_id = r.id
-LEFT JOIN chat_list AS c
-    ON urm.room_id = c.room_id 
-        AND c.id > urm.last_confirm_chat_id
-LEFT JOIN
-    (
-        SELECT 
-            c.room_id,
-            c.id AS latest_chat_id,
-            c.content AS latest_chat_content
-        FROM chat_list AS c
-        JOIN (
-            SELECT room_id, MAX(id) AS latest_chat_id FROM chat_list GROUP BY room_id
-        ) AS max_chat
-        ON c.room_id = max_chat.room_id 
-            AND c.id = max_chat.latest_chat_id
-    ) AS lc ON urm.room_id = lc.room_id
-WHERE urm.user_id = 3
-GROUP BY urm.room_id, r.name, lc.latest_chat_id, lc.latest_chat_content;
-
-
-SELECT 
-    urm.room_id,
-    r.name AS room_name
-FROM user_room_map AS urm
-JOIN room_list AS r ON urm.room_id = r.id
-WHERE urm.user_id = 1

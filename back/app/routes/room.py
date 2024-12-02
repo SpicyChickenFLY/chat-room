@@ -21,7 +21,8 @@ class RoomByUserApi(Resource):
                     "roomName": room_name,
                     "unreadMessages": unread_messages,
                     "latestChatContent": latest_chat_content,
+                    "latestChatCreateTime": latest_chat_create_time,
                 }
-                for room_id, room_name, unread_messages, latest_chat_content in room_details
+                for room_id, room_name, unread_messages, latest_chat_content, latest_chat_create_time in room_details
             ]
         }, 200

@@ -1,3 +1,5 @@
+import datetime
+
 from app.store import db
 
 class Chat(db.Model):
@@ -6,3 +8,4 @@ class Chat(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user_list.id'), nullable=False)
     room_id = db.Column(db.Integer, db.ForeignKey('room_list.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now())

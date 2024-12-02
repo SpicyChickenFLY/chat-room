@@ -212,6 +212,14 @@
       }
     }
 
+    .chat-ui-empty {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
     .chat-ui {
       position: relative;
       display: flex;

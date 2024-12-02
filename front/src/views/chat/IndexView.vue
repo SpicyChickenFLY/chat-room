@@ -31,6 +31,7 @@ const userInfo: any = ref({
 })
 
 const roomListInfo = ref([])
+const selectedRoom = ref(-1)
 
 const loading = ref(true)
 const memberVisible = ref(false)
@@ -61,16 +62,20 @@ const getUserInfo = (userId: string) => {
   request
     .get(`/api/user/${userId}`)
     .then((res: any) => (userInfo.value = res.data))
-    .catch((err: any) => console.log("ERROR", err))
+    .catch((err: any) => console.log('ERROR', err))
 }
 
 const getUserRoomInfo = (userId: string) => {
   request
     .get(`/api/user/${userId}/room`)
     .then((res: any) => (roomListInfo.value = res.data))
-    .catch((err: any) => console.log("ERROR", err))
+    .catch((err: any) => console.log('ERROR', err))
 
   console.log(roomListInfo.value)
+}
+
+const selectRoom = (roomId: number) => {
+  selectedRoom.value = roomId
 }
 
 // 初始化
@@ -248,17 +253,26 @@ const openCreateRoom = () => {
         </div>
         <div class="room-list-box">
           <el-scrollbar>
-            <div class="room-info-box" v-for="item in roomListInfo" :key="item">
+            <div
+              :class="{ 'room-info-box': true, active: item.roomId === selectedRoom }"
+              v-for="item in roomListInfo"
+              :key="item"
+              @click="selectRoom(item.roomId)"
+            >
               <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
               <div class="content">
                 <div class="title">
-                  <p class="name">{{item.roomName}}</p>
+                  <p class="name">{{ item.roomName }}</p>
                   <p class="time"></p>
                 </div>
                 <div class="message">
                   <p class="text">
-                    <span>{{item.latestChatContent}}</span>
-                    <el-badge v-if="item.unreadMessages>0" :value="item.unreadMessages" :max="99" />
+                    <span>{{ item.latestChatContent }}</span>
+                    <el-badge
+                      v-if="item.unreadMessages > 0"
+                      :value="item.unreadMessages"
+                      :max="99"
+                    />
                   </p>
                 </div>
               </div>
@@ -270,14 +284,17 @@ const openCreateRoom = () => {
       <!-- 消息列表 -->
       <div class="room-preview">
         <div class="room-name">
-          <p class="title">ACGN 小屋</p>
+          <p class="title"></p>
           <div class="chat-options">
             <span class="hidden"></span>
             <span class="max"></span>
             <span class="close" @click="logout"></span>
           </div>
         </div>
-        <div class="chat-ui">
+        <div class="chat-ui-empty" v-if="selectedRoom == -1">
+          <el-empty description="机会常常只留给那些敢于开口的人" />
+        </div>
+        <div class="chat-ui" v-else>
           <div class="message-list">
             <div class="loading-text" v-if="isLoading">
               <el-icon class="is-loading"><Loading /></el-icon>加载中...

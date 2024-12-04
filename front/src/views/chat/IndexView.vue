@@ -36,13 +36,18 @@ const selectedRoom = ref(-1)
 const loading = ref(true)
 const memberVisible = ref(false)
 const userList: any = ref([])
-const messageList: any = ref([])
+const messageList: any = ref([
+  { name: "chow", time:"", message: "hello" },
+  { name: "other", time:"", message: "hello" }
+])
 const textareaInput = ref('')
 
 const onEnter = (event: KeyboardEvent) => {
   event.preventDefault() // 阻止默认的回车行为（换行）
   sendMessage()
 }
+
+// SocketIO API
 
 // 发送信息
 const sendMessage = () => {
@@ -58,6 +63,8 @@ const sendMessage = () => {
   }
 }
 
+// RESTful API
+
 const getUserInfo = (userId: string) => {
   request
     .get(`/api/user/${userId}`)
@@ -70,8 +77,13 @@ const getUserRoomInfo = (userId: string) => {
     .get(`/api/user/${userId}/room`)
     .then((res: any) => (roomListInfo.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
+}
 
-  console.log(roomListInfo.value)
+const getHistoryChat = (roomId: number, nextId: number) => {
+  request
+    .get(`/api/room/${roomId}/chat`, { params: { nextId }})
+    .then((res: any) => (messageList.value = res.data))
+    .catch((err: any) => console.log('ERROR', err))
 }
 
 const selectRoom = (roomId: number) => {
@@ -79,7 +91,7 @@ const selectRoom = (roomId: number) => {
 }
 
 // 初始化
-const initChat = () => {
+const initChat = async () => {
   const token = userStore.token
   const userId = JSON.parse(atob(token.split('.')[1])).sub
   if (!token) {
@@ -89,6 +101,7 @@ const initChat = () => {
   }
   getUserInfo(userId)
   getUserRoomInfo(userId)
+  // getHistoryChat(selectedRoom.value, roomListInfo[selectedRoom.value].latestChatContent)
 
   loading.value = false
 
@@ -131,11 +144,10 @@ const autoScroll = () => {
 const findRoom = () => {}
 
 // 获取历史数据
-const hasMore = ref(true)
 const isLoading = ref(false)
 const page = ref(1)
 const fetchMessages = async () => {
-  if (!hasMore.value || isLoading.value) return
+  if (isLoading.value) return
 
   isLoading.value = true
 
@@ -144,7 +156,6 @@ const fetchMessages = async () => {
     .get('/api/user/message?page=' + page.value)
     .then(async (res: any) => {
       const newMessages = res.data
-      hasMore.value = newMessages.length < 20
 
       const changeMessage = setTimeout(() => {
         messageList.value.unshift(...newMessages)
@@ -170,7 +181,7 @@ const fetchMessages = async () => {
 }
 // 滚动条事件
 const handleScroll = () => {
-  if (scrollbarRef.value.wrapRef.scrollTop == 0 && hasMore.value) {
+  if (scrollbarRef.value.wrapRef.scrollTop == 0) {
     fetchMessages()
   }
 }
@@ -284,7 +295,11 @@ const openCreateRoom = () => {
       <!-- 消息列表 -->
       <div class="room-preview">
         <div class="room-name">
-          <p class="title"></p>
+          <p class="title">
+            <div v-if="selectedRoom >=0 && roomListInfo.length > 0">
+              {{ roomListInfo.filter((item) => item.roomId === selectedRoom)[0].roomName }}
+            </div>
+          </p>
           <div class="chat-options">
             <span class="hidden"></span>
             <span class="max"></span>
@@ -311,7 +326,7 @@ const openCreateRoom = () => {
                     <p
                       class="content"
                       :class="{
-                        other: item.name === userInfo.name
+                        other: item.name === userInfo.nickname
                       }"
                     >
                       {{ item.message }}

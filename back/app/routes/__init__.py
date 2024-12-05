@@ -2,6 +2,7 @@ from . import user_room
 from . import auth
 from . import user
 from . import room
+from . import chat
 
 def api_add_resouces(api):
     # 登陆接口
@@ -15,3 +16,5 @@ def api_add_resouces(api):
 
     api.add_resource(room.RoomByUserApi, '/api/user/<user_id>/room')
     api.add_resource(user.UserByRoomApi, '/api/room/<room_id>/user')
+
+    api.add_resource(chat.ChatByRoomApi, '/api/room/<room_id>/chat')

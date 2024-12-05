@@ -232,7 +232,7 @@
         position: relative;
         width: 100%;
         flex-grow: 1;
-        padding: 0 0 0 1rem;
+        padding: 0 1rem 0 1rem;
         box-sizing: border-box;
 
         .loading-text {
@@ -250,15 +250,21 @@
           min-height: 3rem;
           margin-top: 1.5rem;
 
-          &:nth-last-child(n) {
-            margin-bottom: 1.5rem;
-          }
+          // &:nth-last-child(n) {
+          //   margin-bottom: 1.5rem;
+          // }
 
           .user-img {
             width: 3.125rem;
             height: 3.125rem;
             background-color: transparent;
             margin-right: 1rem;
+          }
+          .user-img-right {
+            width: 3.125rem;
+            height: 3.125rem;
+            background-color: transparent;
+            margin-left: 1rem;
           }
 
           .message-content {
@@ -267,6 +273,7 @@
             width: 90%;
 
             .title {
+              display: flex;
               font-size: 1rem;
               margin-bottom: 0.5rem;
 
@@ -276,37 +283,33 @@
             }
 
             .text {
-              .content {
-                float: left;
+              display: flex;
+              p {
                 position: relative;
                 font-size: 1.25rem;
                 padding: 0.75rem;
-                background-color: white;
                 border-radius: 0.5rem;
-                border-top-left-radius: 0;
-
-                &::after {
-                  content: '';
-                  position: absolute;
-                  top: 0rem;
-                  left: -0.45rem;
-                  width: 0;
-                  height: 0;
-                  border-top: 0.25rem solid white;
-                  border-right: 0.25rem solid white;
-                  border-bottom: 0.25rem solid transparent;
-                  border-left: 0.25rem solid transparent;
-                }
+                background-color: white;
               }
+            }
+          }
+        }
+        .other {
+          justify-content: right;
+          .message-content {
+            .title {
+              justify-content: right;
 
-              .other {
+              .time {
+                margin-right: 2rem;
+              }
+            }
+            .text {
+              justify-content: right;
+
+              p {
                 color: white;
                 background-color: #1e6eff;
-
-                &::after {
-                  border-top: 0.25rem solid #1e6eff;
-                  border-right: 0.25rem solid #1e6eff;
-                }
               }
             }
           }

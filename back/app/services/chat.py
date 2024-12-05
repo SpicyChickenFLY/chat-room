@@ -22,11 +22,11 @@ from app.store import db
 #     return room
 #
 
-def get_chat_for_room(room_id: int, last_chat_id: int, limit: int = 50):
+def get_chat_for_room(room_id: int, next_chat_id: int, limit: int = 50):
     return (
         Chat.query
         .filter(Chat.room_id == room_id)
-        .filter(Chat.id < last_chat_id)
+        .filter(Chat.id < next_chat_id)
         .order_by(Chat.id.desc())
         .limit(limit)
     ).all()

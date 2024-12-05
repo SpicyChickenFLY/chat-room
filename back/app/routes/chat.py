@@ -9,11 +9,11 @@ class ChatByRoomApi(Resource):
 
     def get(self, room_id):
         parser = RequestParser()
-        parser.add_argument('lastChatId', required=True)
-        parser.add_argument('limit')
+        parser.add_argument("nextId", required=True)
+        parser.add_argument("limit")
         args = parser.parse_args()
         last_chat_id = args.last_chat_id
         limit = args.limit
         chats = services.get_chat_for_room(room_id, last_chat_id, limit)
 
-        return {"data": []}, 200
+        return {"data": [{chat.id, chat.user_id, chat.content, chat.create_time} for chat in chats]}, 200

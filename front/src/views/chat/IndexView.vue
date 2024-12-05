@@ -37,8 +37,8 @@ const loading = ref(true)
 const memberVisible = ref(false)
 const userList: any = ref([])
 const messageList: any = ref([
-  { name: "chow", time:"", message: "hello" },
-  { name: "other", time:"", message: "hello" }
+  { name: 'chow', time: '', message: 'hello' },
+  { name: 'other', time: '', message: 'hello' }
 ])
 const textareaInput = ref('')
 
@@ -81,13 +81,17 @@ const getUserRoomInfo = (userId: string) => {
 
 const getHistoryChat = (roomId: number, nextId: number) => {
   request
-    .get(`/api/room/${roomId}/chat`, { params: { nextId }})
+    .get(`/api/room/${roomId}/chat?nextId=${nextId}`)
     .then((res: any) => (messageList.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }
 
 const selectRoom = (roomId: number) => {
   selectedRoom.value = roomId
+  console.log(roomListInfo.value, roomId)
+  const nextId = roomListInfo.value.filter((item: any) => item.roomId === roomId)[0].latestChatId
+  if (nextId) 
+    getHistoryChat(roomId, nextId)
 }
 
 // 初始化
@@ -101,7 +105,6 @@ const initChat = async () => {
   }
   getUserInfo(userId)
   getUserRoomInfo(userId)
-  // getHistoryChat(selectedRoom.value, roomListInfo[selectedRoom.value].latestChatContent)
 
   loading.value = false
 
@@ -264,17 +267,17 @@ const openCreateRoom = () => {
         </div>
         <div class="room-list-box">
           <el-scrollbar>
-            <div
+            <a
               :class="{ 'room-info-box': true, active: item.roomId === selectedRoom }"
               v-for="item in roomListInfo"
               :key="item"
               @click="selectRoom(item.roomId)"
             >
-              <el-avatar class="user-img" shape="square" src="/images/ACGN.png" />
+              <el-avatar class="user-img" src="/images/ACGN.png" />
               <div class="content">
                 <div class="title">
                   <p class="name">{{ item.roomName }}</p>
-                  <p class="time"></p>
+                  <p class="time">{{ item.latestChatCreateTime }}</p>
                 </div>
                 <div class="message">
                   <p class="text">
@@ -287,7 +290,7 @@ const openCreateRoom = () => {
                   </p>
                 </div>
               </div>
-            </div>
+            </a>
           </el-scrollbar>
         </div>
       </div>
@@ -296,9 +299,9 @@ const openCreateRoom = () => {
       <div class="room-preview">
         <div class="room-name">
           <p class="title">
-            <div v-if="selectedRoom >=0 && roomListInfo.length > 0">
+            <span v-if="selectedRoom >= 0 && roomListInfo.length > 0">
               {{ roomListInfo.filter((item) => item.roomId === selectedRoom)[0].roomName }}
-            </div>
+            </span>
           </p>
           <div class="chat-options">
             <span class="hidden"></span>
@@ -315,24 +318,38 @@ const openCreateRoom = () => {
               <el-icon class="is-loading"><Loading /></el-icon>加载中...
             </div>
             <el-scrollbar height="100%" ref="scrollbarRef" @scroll="handleScroll">
-              <div v-for="item in messageList" :key="item.name" class="message-item">
-                <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
+              <div
+                v-for="item in messageList"
+                :key="item.name"
+                class="message-item"
+                :class="{
+                  other: item.name === userInfo.nickname
+                }"
+              >
+                <el-avatar
+                  v-if="item.name !== userInfo.nickname"
+                  class="user-img"
+                  src="/images/ACGN.png"
+                />
                 <div class="message-content">
                   <div class="title">
-                    <span class="name">{{ item.name }}</span
-                    ><span class="time">{{ formatDate(item.time) }}</span>
+                    <span class="name" v-if="item.name !== userInfo.nickname">
+                      {{ item.name }}
+                    </span>
+                    <span class="time">{{ formatDate(item.time) }}</span>
+                    <span class="name" v-if="item.name === userInfo.nickname">
+                      {{ item.name }}
+                    </span>
                   </div>
                   <div class="text">
-                    <p
-                      class="content"
-                      :class="{
-                        other: item.name === userInfo.nickname
-                      }"
-                    >
-                      {{ item.message }}
-                    </p>
+                    <p>{{ item.message }}</p>
                   </div>
                 </div>
+                <el-avatar
+                  v-if="item.name === userInfo.nickname"
+                  class="user-img-right"
+                  src="/images/ACGN.png"
+                />
               </div>
             </el-scrollbar>
           </div>
@@ -377,7 +394,7 @@ const openCreateRoom = () => {
           <div class="member-list">
             <el-scrollbar height="100%">
               <div class="member-item" v-for="item in userList" :key="item">
-                <el-avatar class="user-img" shape="square" :src="`/images/userimg/${item.img}`" />
+                <el-avatar class="user-img" :src="`/images/userimg/${item.img}`" />
                 <div class="name">{{ item.name }}</div>
               </div>
             </el-scrollbar>

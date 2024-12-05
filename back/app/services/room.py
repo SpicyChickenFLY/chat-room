@@ -31,7 +31,7 @@ def get_room_details_for_user(user_id: int):
             Room.name.label("room_name"),
             UserRoomMap.last_confirm_chat_id.label("last_confirm_chat_id"),
         )
-        .outerjoin(Room, (UserRoomMap.room_id == Chat.room_id))
+        .outerjoin(Room, (UserRoomMap.room_id == Room.id))
         .filter(UserRoomMap.user_id == user_id)
     ).subquery()
 
@@ -69,6 +69,7 @@ def get_room_details_for_user(user_id: int):
 
     latest_chat = (
         db.session.query(
+            latest_chat_id.c.room_id.label("room_id"),
             latest_chat_id.c.latest_chat_id.label("latest_chat_id"),
             Chat.content.label("latest_chat_content"),
             Chat.create_time.label("latest_chat_create_time"),

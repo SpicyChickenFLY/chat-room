@@ -35,7 +35,6 @@ const login = () => {
       password: form.value.password
     })
     .then((res: any) => {
-      if (res.code === 1) {
         ElMessage.success({ message: res.msg })
         userStore.setToken(res.data)
 
@@ -43,10 +42,8 @@ const login = () => {
         socket.emit('login', { token: userStore.token })
 
         router.replace('/chat')
-      } else {
-        ElMessage.error({ message: res.msg, grouping: true })
-      }
     })
+    .catch((err: any) => ElMessage.error(err))
 }
 
 // 注册

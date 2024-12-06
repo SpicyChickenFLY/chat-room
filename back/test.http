@@ -7,3 +7,16 @@ GET http://localhost:5000/api/user-room
 {
     "userId": 1
 }
+###
+
+GET http://localhost:5000/api/room/1/chat?nextId=1
+
+###
+
+GET http://localhost:5000/api/room/1/chat
+
+{
+    "nextId": 1
+}
+
+###

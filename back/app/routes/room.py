@@ -20,7 +20,7 @@ class RoomByUserApi(Resource):
                     "unreadMessages": unread_messages,
                     "latestChatId": latest_chat_id,
                     "latestChatContent": latest_chat_content,
-                    "latestChatCreateTime": latest_chat_create_time,
+                    "latestChatCreateTime": latest_chat_create_time.isoformat(),
                 }
                 for room_id, room_name, unread_messages, latest_chat_id, latest_chat_content, latest_chat_create_time in room_details
             ]

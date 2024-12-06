@@ -13,6 +13,7 @@ const request = axios.create({
 
 request.interceptors.request.use(
   (config) => {
+    config.headers['Content-Type'] = "application/json"
     // 注入token
     if (userStore.token) {
       config.headers.Authorization = `Bearer ${userStore.token}`

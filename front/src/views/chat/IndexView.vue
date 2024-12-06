@@ -81,7 +81,7 @@ const getUserRoomInfo = (userId: string) => {
 
 const getHistoryChat = (roomId: number, nextId: number) => {
   request
-    .get(`/api/room/${roomId}/chat?nextId=${nextId}`)
+    .get(`/api/room/${roomId}/chat`, { params: {nextId: nextId} })
     .then((res: any) => (messageList.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }

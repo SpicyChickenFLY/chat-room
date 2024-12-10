@@ -6,13 +6,16 @@ import { useUserStore } from '@/stores'
 import request from '@/utils/request'
 import router from '@/router'
 import { formatDate, formatMessageDate } from '@/utils'
-import { getSocket } from '@/utils/socket'
+import { connSocket, disconnSocket, onEvtCb, emitEvt } from '@/utils/socket'
+
 import UserInfo from './components/UserInfo.vue'
 import RoomCreate from './components/RoomCreate.vue'
 
 // socket
-let socket: any
 const userStore = useUserStore()
+const token = userStore.token
+const userId = JSON.parse(atob(token.split('.')[1])).sub
+
 const scrollbarRef: any = ref<InstanceType<typeof ElScrollbar> | null>(null)
 const userStatusColor = computed(() => {
   return function (status: string) {
@@ -51,18 +54,21 @@ const onEnter = (event: KeyboardEvent) => {
 
 // 发送信息
 const sendMessage = () => {
-  if (textareaInput.value.trim() !== '') {
-    socket.emit('sendMessage', {
-      from: userInfo.value.usermember,
-      message: textareaInput.value,
+  if (textareaInput.value !== '') {
+    emitEvt('sendMsg', {
+      userId: userId,
+      roomId: selectedRoom.value,
+      content: textareaInput.value,
     })
 
     textareaInput.value = ''
+  } else {
+    // 发送消息不能为空
   }
 }
 
 // 接收消息
-const recvMessage = (data) => {
+const onMsgEvt = (data) => {
   if (data.type === 'message') {
     messageList.value.push(data.data)
     autoScroll()
@@ -73,6 +79,11 @@ const recvMessage = (data) => {
     userStore.token = ''
     router.push('/')
   }
+}
+
+const onCloseEvt = (data) => {
+  ElMessage.error('与服务器断开连接！')
+  router.replace('/')
 }
 
 // RESTful API
@@ -108,8 +119,6 @@ const selectRoom = (roomId: number) => {
 
 // 初始化
 const initChat = async () => {
-  const token = userStore.token
-  const userId = JSON.parse(atob(token.split('.')[1])).sub
   if (!token) {
     ElMessage.error('请先登录！')
     router.replace('/')
@@ -120,15 +129,10 @@ const initChat = async () => {
 
   loading.value = false
 
-  socket = getSocket()
-  socket.off('message')
-  socket.on('message', recvMessage)
-  socket.off('disconnect')
-  socket.on('disconnect', () => {
-    ElMessage.error('与服务器断开连接！')
-    router.replace('/')
-  })
-  socket.emit('joinRoom', { token: userStore.token })
+  connSocket()
+  onEvtCb('message', onMsgEvt)
+  onEvtCb('disconnect', onCloseEvt)
+  emitEvt('joinRoom', { token: userStore.token })
 }
 
 initChat()
@@ -204,7 +208,7 @@ const logout = () => {
         message: '你已退出登录'
       })
       userStore.logout()
-      socket.disconnect()
+      disconnSocket()
     })
     .catch(() => {
       // do nothing

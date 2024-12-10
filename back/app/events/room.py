@@ -24,6 +24,14 @@ def text(message):
         'msg': f"{session.get('name')}: {message['msg']}",
     }, to=room)
 
+# 发送消息
+@socketio.on("sendMsg")
+def handle_send_message(data):
+    # 存储信息
+
+    # 广播消息
+    socketio.send({"type": "msg", "data": data})
+
 
 @socketio.on('leave', namespace='/chat')
 def left(_):

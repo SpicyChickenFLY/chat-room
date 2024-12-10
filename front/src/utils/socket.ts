@@ -4,17 +4,15 @@ let socket: any = null
 
 const baseURL = 'http://127.0.0.1:5000'
 
-export function getSocket() {
+export function connSocket() {
   if (!socket) {
     console.log('Socket 创建')
     socket = io(baseURL)
   }
-
-  return socket
 }
 
 // 关闭连接
-export function disconnectSocket() {
+export function disconnSocket() {
   if (socket) {
     console.log('Socket 关闭')
     socket.disconnect()
@@ -22,7 +20,7 @@ export function disconnectSocket() {
   }
 }
 
-export function registerEvtCb(event: string, callback: any) {
+export function onEvtCb(event: string, callback: any) {
   socket.off(event)
   socket.on(event, callback)
 }

@@ -54,12 +54,24 @@ const sendMessage = () => {
   if (textareaInput.value.trim() !== '') {
     socket.emit('sendMessage', {
       from: userInfo.value.usermember,
-      name: userInfo.value.name,
       message: textareaInput.value,
-      img: userInfo.value.avatar
     })
 
     textareaInput.value = ''
+  }
+}
+
+// 接收消息
+const recvMessage = (data) => {
+  if (data.type === 'message') {
+    messageList.value.push(data.data)
+    autoScroll()
+  } else if (data.type === 'userList') {
+    userList.value = data.data
+  } else if (data.type === 'kick') {
+    ElMessage.error(data.message)
+    userStore.token = ''
+    router.push('/')
   }
 }
 
@@ -110,27 +122,13 @@ const initChat = async () => {
 
   socket = getSocket()
   socket.off('message')
-  socket.on('message', (data: any) => {
-    if (data.type === 'message') {
-      messageList.value.push(data.data)
-      autoScroll()
-    } else if (data.type === 'userList') {
-      userList.value = data.data
-    } else if (data.type === 'kick') {
-      ElMessage.error(data.message)
-      userStore.token = ''
-      router.push('/')
-    }
-  })
-
-  // 加入房间
-  socket.emit('joinRoom', { token: userStore.token })
-
+  socket.on('message', recvMessage)
   socket.off('disconnect')
   socket.on('disconnect', () => {
     ElMessage.error('与服务器断开连接！')
     router.replace('/')
   })
+  socket.emit('joinRoom', { token: userStore.token })
 }
 
 initChat()

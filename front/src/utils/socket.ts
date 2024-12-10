@@ -21,3 +21,12 @@ export function disconnectSocket() {
     socket = null
   }
 }
+
+export function registerEvtCb(event: string, callback: any) {
+  socket.off(event)
+  socket.on(event, callback)
+}
+
+export function emitEvt(event: string, arg: any, errCb: any) {
+  socket.timeout(2000).emit(event, arg, errCb)
+}

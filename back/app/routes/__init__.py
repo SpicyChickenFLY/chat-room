@@ -1,10 +1,13 @@
+from flask_restful import Api
+
 from . import user_room
 from . import auth
 from . import user
 from . import room
 from . import chat
 
-def api_add_resouces(api):
+def init_api(app):
+    api = Api(app)
     # 登陆接口
     api.add_resource(auth.LoginApi, '/api/auth/login')
     # 用户接口

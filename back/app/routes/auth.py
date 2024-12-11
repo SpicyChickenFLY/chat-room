@@ -4,10 +4,6 @@ from flask_jwt_extended import create_access_token
 from werkzeug import security
 
 from app import services
-from app import entities
-
-users_db = {}
-
 
 class LoginApi(Resource):
     def post(self):

@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores'
-import { getSocket } from '@/utils/socket'
+import { connSocket, emitEvt } from '@/utils/socket'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -38,8 +38,8 @@ const login = () => {
         ElMessage.success({ message: res.msg })
         userStore.setToken(res.data)
 
-        let socket = getSocket()
-        socket.emit('login', { token: userStore.token })
+        connSocket()
+        emitEvt('login', { token: userStore.token })
 
         router.replace('/chat')
     })

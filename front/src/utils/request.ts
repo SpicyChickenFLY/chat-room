@@ -30,7 +30,6 @@ request.interceptors.response.use(
   (response) => {
     // 判断返回的数据
     const { code, status } = response.data
-    console.log(response)
     if (response.status === 401) {
       ElMessage({ type: 'warning', message: 'token超时了' })
       // 说明token超时了

@@ -28,17 +28,14 @@ const userStatusColor = computed(() => {
   }
 })
 
-const userInfo: any = ref({
-  name: '',
-  avatar: '../ACGN.png'
-})
-
+const userInfo: any = ref({})
 const roomListInfo = ref([])
 const userInfoMap = ref({})
 const selectedRoom = ref(-1)
 
 const loading = ref(true)
 const memberVisible = ref(false)
+const accountVisible = ref(false)
 const userList: any = ref([])
 const messageList: any = ref([
   { name: 'chow', time: '', message: 'hello' },
@@ -103,8 +100,8 @@ const getUserRoomInfo = (userId: number) => {
     .catch((err: any) => console.log('ERROR', err))
 }
 
-const getRoomUserInfo = (roomId: number) => {
-  request
+const getRoomUserInfo = async (roomId: number) => {
+  await request
     .get(`/api/room/${roomId}/user`)
     .then((res: any) => (userInfoMap.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
@@ -122,16 +119,15 @@ const getHistoryChat = (roomId: number, nextId: number) => {
     .catch((err: any) => console.log('ERROR', err))
 }
 
-const selectRoom = (roomId: number) => {
-  selectedRoom.value = roomId
+const selectRoom = async (roomId: number) => {
   getRoomUserInfo(roomId)
   let nextId = roomListInfo.value.filter((item: any) => item.roomId === roomId)[0].latestChatId
   if (nextId) getHistoryChat(roomId, nextId + 1)
+  selectedRoom.value = roomId
 }
 
 // 初始化
-const token = userStore.token
-const userId = JSON.parse(atob(token.split('.')[1])).sub
+
 if (!token) {
   ElMessage.error('请先登录！')
   router.replace('/')
@@ -325,7 +321,7 @@ const openCreateRoom = () => {
             <span class="close" @click="logout"></span>
           </div>
         </div>
-        <div class="chat-ui-empty" v-if="selectedRoom == -1">
+        <div class="chat-ui-empty" v-if="selectedRoom === -1">
           <el-empty description="机会常常只留给那些敢于开口的人" />
         </div>
         <div class="chat-ui" v-else>
@@ -352,11 +348,11 @@ const openCreateRoom = () => {
                 <div class="message-content">
                   <div class="title">
                     <span class="name" v-if="item.userId !== userId">
-                      {{ userInfoMap[item.userId].nickname }}
+                      {{ userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId }}
                     </span>
                     <span class="time">{{ formatDate(item.time) }}</span>
                     <span class="name" v-if="item.userId === userId">
-                      {{ userInfoMap[item.userId].nickname }}
+                      {{ userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId }}
                     </span>
                   </div>
                   <div class="text">

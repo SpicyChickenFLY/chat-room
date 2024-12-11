@@ -1,4 +1,4 @@
-from app.entities import User
+from app.entities import *
 from app.store import db
 
 
@@ -16,3 +16,14 @@ def create_user(user: User):
     db.session.add(user)
     db.session.commit()
     return user
+
+def get_user_details_for_room(room_id: int):
+    return (
+        db.session.query(
+            UserRoomMap.user_id.label("id"),
+            User.nickname.label("nickname"),
+            User.avatar.label("avatar"),
+        )
+        .outerjoin(User, User.id == UserRoomMap.user_id)
+        .filter(UserRoomMap.room_id == room_id)
+    ).all()

@@ -49,8 +49,20 @@ class UserApi(Resource):
             }
         }, 200
 
+
 class UserByRoomApi(Resource):
     """房间成员列表"""
 
     def get(self, room_id):
-        pass
+        room = services.get_room(room_id)
+        if room is None:
+            return {"msg": "未查询到信息"}, 404
+
+        user_details = services.get_user_details_for_room(room_id)
+        data = {}
+        for id, nickname, avatar in user_details:
+            data[id] = {
+                "nickname": nickname,
+                "avatar": avatar,
+            }
+        return {"data": data}, 200

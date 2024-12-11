@@ -166,7 +166,6 @@
       padding-left: 1.5rem;
       width: calc(100% - 1.5rem);
       height: 4.375rem;
-      background-color: white;
       border-bottom: 0.0625rem solid #e0e0e0;
 
       .title {
@@ -181,8 +180,6 @@
         justify-content: flex-end;
         width: 9rem;
         height: 4.375rem;
-        background-color: white;
-        border-bottom: 0.0625rem solid #e0e0e0;
         box-sizing: border-box;
 
         span {
@@ -257,13 +254,12 @@
           .user-img {
             width: 3.125rem;
             height: 3.125rem;
-            background-color: transparent;
+            // background-color: transparent;
             margin-right: 1rem;
           }
           .user-img-right {
             width: 3.125rem;
             height: 3.125rem;
-            background-color: transparent;
             margin-left: 1rem;
           }
 
@@ -279,6 +275,7 @@
 
               .time {
                 margin-left: 2rem;
+                opacity: 0.2;
               }
             }
 

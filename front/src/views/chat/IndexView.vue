@@ -34,6 +34,7 @@ const userInfo: any = ref({
 })
 
 const roomListInfo = ref([])
+const userInfoMap = ref({})
 const selectedRoom = ref(-1)
 
 const loading = ref(true)
@@ -88,42 +89,55 @@ const onCloseEvt = (data) => {
 
 // RESTful API
 
-const getUserInfo = (userId: string) => {
+const getUserInfo = (userId: number) => {
   request
     .get(`/api/user/${userId}`)
     .then((res: any) => (userInfo.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }
 
-const getUserRoomInfo = (userId: string) => {
+const getUserRoomInfo = (userId: number) => {
   request
     .get(`/api/user/${userId}/room`)
     .then((res: any) => (roomListInfo.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }
 
+const getRoomUserInfo = (roomId: number) => {
+  request
+    .get(`/api/room/${roomId}/user`)
+    .then((res: any) => (userInfoMap.value = res.data))
+    .catch((err: any) => console.log('ERROR', err))
+}
+
 const getHistoryChat = (roomId: number, nextId: number) => {
   request
-    .get(`/api/room/${roomId}/chat`, { params: {nextId: nextId} })
+    .get(`/api/room/${roomId}/chat`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      params: { nextId }
+    })
     .then((res: any) => (messageList.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }
 
 const selectRoom = (roomId: number) => {
   selectedRoom.value = roomId
-  console.log(roomListInfo.value, roomId)
-  const nextId = roomListInfo.value.filter((item: any) => item.roomId === roomId)[0].latestChatId
-  if (nextId) 
-    getHistoryChat(roomId, nextId)
+  getRoomUserInfo(roomId)
+  let nextId = roomListInfo.value.filter((item: any) => item.roomId === roomId)[0].latestChatId
+  if (nextId) getHistoryChat(roomId, nextId + 1)
 }
 
 // 初始化
+const token = userStore.token
+const userId = JSON.parse(atob(token.split('.')[1])).sub
+if (!token) {
+  ElMessage.error('请先登录！')
+  router.replace('/')
+}
+
 const initChat = async () => {
-  if (!token) {
-    ElMessage.error('请先登录！')
-    router.replace('/')
-    return
-  }
   getUserInfo(userId)
   getUserRoomInfo(userId)
 
@@ -283,7 +297,7 @@ const openCreateRoom = () => {
                 </div>
                 <div class="message">
                   <p class="text">
-                    <span>{{ item.latestChatContent }}</span>
+                    <span>{{ item.latestChatUserName }}:{{ item.latestChatContent }}</span>
                     <el-badge
                       v-if="item.unreadMessages > 0"
                       :value="item.unreadMessages"
@@ -322,36 +336,40 @@ const openCreateRoom = () => {
             <el-scrollbar height="100%" ref="scrollbarRef" @scroll="handleScroll">
               <div
                 v-for="item in messageList"
-                :key="item.name"
+                :key="item.id"
                 class="message-item"
                 :class="{
-                  other: item.name === userInfo.nickname
+                  other: item.userId === userId
                 }"
               >
                 <el-avatar
-                  v-if="item.name !== userInfo.nickname"
+                  v-if="item.userId !== userId"
                   class="user-img"
-                  src="/images/ACGN.png"
-                />
+                  src="https://empty"
+                >
+                  {{ userInfoMap[item.userId].nickname }}
+                </el-avatar>
                 <div class="message-content">
                   <div class="title">
-                    <span class="name" v-if="item.name !== userInfo.nickname">
-                      {{ item.name }}
+                    <span class="name" v-if="item.userId !== userId">
+                      {{ userInfoMap[item.userId].nickname }}
                     </span>
                     <span class="time">{{ formatDate(item.time) }}</span>
-                    <span class="name" v-if="item.name === userInfo.nickname">
-                      {{ item.name }}
+                    <span class="name" v-if="item.userId === userId">
+                      {{ userInfoMap[item.userId].nickname }}
                     </span>
                   </div>
                   <div class="text">
-                    <p>{{ item.message }}</p>
+                    <p>{{ item.content }}</p>
                   </div>
                 </div>
                 <el-avatar
-                  v-if="item.name === userInfo.nickname"
+                  v-if="item.userId === userId"
                   class="user-img-right"
-                  src="/images/ACGN.png"
-                />
+                  src="https://empty"
+                >
+                  {{ userInfoMap[item.userId].nickname }}
+                </el-avatar>
               </div>
             </el-scrollbar>
           </div>

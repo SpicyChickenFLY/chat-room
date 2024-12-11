@@ -72,8 +72,10 @@ def get_room_details_for_user(user_id: int):
             latest_chat_id.c.room_id.label("room_id"),
             latest_chat_id.c.latest_chat_id.label("latest_chat_id"),
             Chat.content.label("latest_chat_content"),
+            User.nickname.label("latest_chat_user_name"),
             Chat.create_time.label("latest_chat_create_time"),
         ).outerjoin(Chat, (latest_chat_id.c.latest_chat_id == Chat.id))
+        .outerjoin(User, (Chat.user_id == User.id))
     ).subquery()
 
     # Step 3: 最终查询 - 合并结果
@@ -84,6 +86,7 @@ def get_room_details_for_user(user_id: int):
             new_msg_count.c.new_msg_count,
             latest_chat.c.latest_chat_id,
             latest_chat.c.latest_chat_content,
+            latest_chat.c.latest_chat_user_name,
             latest_chat.c.latest_chat_create_time,
         )
         .outerjoin(

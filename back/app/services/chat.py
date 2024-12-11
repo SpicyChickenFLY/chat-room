@@ -1,4 +1,3 @@
-from sqlalchemy.sql import func, case
 
 from app.entities import *
 from app.store import db
@@ -22,7 +21,7 @@ from app.store import db
 #     return room
 #
 
-def get_chat_for_room(room_id: int, next_chat_id: int, limit: int = 50):
+def get_chat_for_room(room_id: str, next_chat_id: str, limit: int):
     return (
         Chat.query
         .filter(Chat.room_id == room_id)

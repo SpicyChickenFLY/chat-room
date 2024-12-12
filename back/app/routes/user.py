@@ -2,8 +2,8 @@ from flask import request
 from flask_restful import Resource
 from werkzeug import security
 
-from app import services
-from app import entities
+from app.services import *
+from app.entities import *
 
 
 class UsersApi(Resource):
@@ -15,20 +15,20 @@ class UsersApi(Resource):
         password = data["password"]
         if not username or not password:
             return {"msg": "用户名密码不能为空"}, 400
-        user = services.find_user_by_nickname(username)
+        user = find_user_by_nickname(username)
         if user is not None:
             return {"msg": "用户名已存在"}, 400
 
-        user = entities.User()
+        user = User()
         user.nickname = username
         user.token = security.generate_password_hash(password)
-        services.create_user(user)
+        create_user(user)
 
-        user_room = entities.UserRoomMap()
+        user_room = UserRoomMap()
         user_room.user_id = user.id
         user_room.room_id = 1
         user_room.authority = 1
-        services.create_user_room(user_room)
+        create_user_room(user_room)
 
         return {"msg": "登陆成功", "data": user.id}, 201
 
@@ -37,7 +37,7 @@ class UserApi(Resource):
     """注册"""
 
     def get(self, id):
-        user = services.get_user(id)
+        user = get_user(id)
         if user is None:
             return {"msg": "未查询到用户信息"}, 404
         return {
@@ -54,11 +54,11 @@ class UserByRoomApi(Resource):
     """房间成员列表"""
 
     def get(self, room_id):
-        room = services.get_room(room_id)
+        room = get_room(room_id)
         if room is None:
             return {"msg": "未查询到信息"}, 404
 
-        user_details = services.get_user_details_for_room(room_id)
+        user_details = get_user_details_for_room(room_id)
         data = {}
         for id, nickname, avatar in user_details:
             data[id] = {

@@ -53,7 +53,7 @@ const onEnter = (event: KeyboardEvent) => {
 // 发送信息
 const sendMessage = () => {
   if (textareaInput.value !== '') {
-    emitEvt('sendMsg', {
+    emitEvt('msg', {
       userId: userId,
       roomId: selectedRoom.value,
       content: textareaInput.value,
@@ -67,7 +67,7 @@ const sendMessage = () => {
 
 // 接收消息
 const onMsgEvt = (data) => {
-  if (data.type === 'message') {
+  if (data.type === 'msg') {
     messageList.value.push(data.data)
     autoScroll()
   } else if (data.type === 'userList') {
@@ -140,7 +140,7 @@ const initChat = async () => {
   loading.value = false
 
   connSocket()
-  onEvtCb('message', onMsgEvt)
+  onEvtCb('msg', onMsgEvt)
   onEvtCb('disconnect', onCloseEvt)
   emitEvt('joinRoom', { token: userStore.token })
 }

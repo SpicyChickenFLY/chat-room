@@ -3,13 +3,13 @@ import { ref, nextTick, computed } from 'vue'
 import { ElMessage, ElScrollbar, ElMessageBox } from 'element-plus'
 
 import { useUserStore } from '@/stores'
-import request from '@/utils/request'
 import router from '@/router'
 import { formatDate, formatMessageDate } from '@/utils'
+import request from '@/utils/request'
 import { connSocket, disconnSocket, onEvtCb, emitEvt } from '@/utils/socket'
 
-import UserInfo from './components/UserInfo.vue'
-import RoomCreate from './components/RoomCreate.vue'
+// import { UserInfo } from './components/UserInfo.vue'
+// import { RoomCreate } from './components/RoomCreate.vue'
 
 // socket
 const userStore = useUserStore()
@@ -37,10 +37,7 @@ const loading = ref(true)
 const memberVisible = ref(false)
 const accountVisible = ref(false)
 const userList: any = ref([])
-const messageList: any = ref([
-  { name: 'chow', time: '', message: 'hello' },
-  { name: 'other', time: '', message: 'hello' }
-])
+const messageList: any = ref([])
 const textareaInput = ref('')
 
 const onEnter = (event: KeyboardEvent) => {
@@ -54,9 +51,9 @@ const onEnter = (event: KeyboardEvent) => {
 const sendMessage = () => {
   if (textareaInput.value !== '') {
     emitEvt('msg', {
-      userId: userId,
+      userId,
       roomId: selectedRoom.value,
-      content: textareaInput.value,
+      content: textareaInput.value
     })
 
     textareaInput.value = ''
@@ -108,13 +105,10 @@ const getRoomUserInfo = async (roomId: number) => {
 }
 
 const getHistoryChat = (roomId: number, nextId: number) => {
+  const headers = { 'Content-Type': 'application/json' }
+  const config = { headers: headers, params: { nextId } }
   request
-    .get(`/api/room/${roomId}/chat`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      params: { nextId }
-    })
+    .get(`/api/room/${roomId}/chat`, config)
     .then((res: any) => (messageList.value = res.data))
     .catch((err: any) => console.log('ERROR', err))
 }
@@ -163,7 +157,6 @@ const isLoading = ref(false)
 const page = ref(1)
 const fetchMessages = async () => {
   if (isLoading.value) return
-
   isLoading.value = true
 
   // 假设 `loadMoreMessages` 是一个方法从后端获取更多消息
@@ -181,18 +174,14 @@ const fetchMessages = async () => {
         // 插入新消息后的滚动高度
         nextTick(() => {
           // 调整滚动位置
-          scrollbarRef.value.scrollTo({
-            // top: (103 * newMessages.length + 8)
-            top: remToPx(6.4375) * newMessages.length + remToPx(0.5)
-          })
+          const top = remToPx(6.4375) * newMessages.length + remToPx(0.5)
+          scrollbarRef.value.scrollTo({ top })
         })
 
         clearTimeout(changeMessage)
       }, 1000)
     })
-    .catch((err) => {
-      console.log(err)
-    })
+    .catch((err: any) => console.log(err))
 }
 // 滚动条事件
 const handleScroll = () => {
@@ -338,32 +327,28 @@ const openCreateRoom = () => {
                   other: item.userId === userId
                 }"
               >
-                <el-avatar
-                  v-if="item.userId !== userId"
-                  class="user-img"
-                  src="https://empty"
-                >
+                <el-avatar v-if="item.userId !== userId" class="user-img" src="https://empty">
                   {{ userInfoMap[item.userId].nickname }}
                 </el-avatar>
                 <div class="message-content">
                   <div class="title">
                     <span class="name" v-if="item.userId !== userId">
-                      {{ userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId }}
+                      {{
+                        userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId
+                      }}
                     </span>
                     <span class="time">{{ formatDate(item.time) }}</span>
                     <span class="name" v-if="item.userId === userId">
-                      {{ userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId }}
+                      {{
+                        userInfoMap[item.userId] ? userInfoMap[item.userId].nickname : item.userId
+                      }}
                     </span>
                   </div>
                   <div class="text">
                     <p>{{ item.content }}</p>
                   </div>
                 </div>
-                <el-avatar
-                  v-if="item.userId === userId"
-                  class="user-img-right"
-                  src="https://empty"
-                >
+                <el-avatar v-if="item.userId === userId" class="user-img-right" src="https://empty">
                   {{ userInfoMap[item.userId].nickname }}
                 </el-avatar>
               </div>

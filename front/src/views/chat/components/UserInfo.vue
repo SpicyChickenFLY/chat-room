@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
@@ -21,7 +22,8 @@ const open = () => {
 
 // 更改信息
 const changeInfo = () => {
-  request.post('/api/user/updateInfo', { userInfoForm: userInfoForm.value }).then((res: any) => {
+  const form = { userInfoForm: userInfoForm.value }
+  request.post('/api/user/updateInfo', form).then((res: any) => {
     if (res.code === 1) {
       ElMessage({
         message: '修改成功',
